@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Yami Espinosa Hair Studio · Control</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --crema:#F5EDE3; --crema-osc:#EDD9C5;
+    --rosa:#E8A5A5; --rosa-suave:#F2C9C9;
+    --dorado:#C4965A; --dorado-claro:#E8C99A; --dorado-brill:#D4A85C;
+    --maqui:#BE7C96; --maqui-suave:#EBD0DA;
+    --marron:#3D2B1A; --marron-osc:#4A3520; --texto-suave:#9B7E6A;
+    --blanco:#FFFFFF; --glow:rgba(196,150,90,0.35);
+    --verde:#7BA05B; --amarillo:#D9A441; --rojo:#C97B6B;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{background:var(--crema-osc);}
+  body{font-family:'Jost',sans-serif;color:var(--marron);display:flex;justify-content:center;min-height:100vh;}
+  .app{width:100%;max-width:440px;background:var(--crema);min-height:100vh;position:relative;overflow-x:hidden;box-shadow:0 0 40px rgba(61,43,26,0.12);display:flex;flex-direction:column;}
+
+  .top{background:linear-gradient(160deg,var(--crema) 0%,var(--crema-osc) 100%);padding:20px 20px 16px;position:sticky;top:0;z-index:20;border-bottom:1px solid rgba(196,150,90,0.25);}
+  .brand{display:flex;align-items:center;gap:11px;}
+  .brand .mark{width:42px;height:42px;border-radius:50%;flex-shrink:0;background:radial-gradient(circle at 35% 30%,var(--dorado-claro),var(--dorado));display:flex;align-items:center;justify-content:center;color:var(--blanco);font-weight:600;font-size:19px;box-shadow:0 4px 14px var(--glow);}
+  .brand h1{font-size:17px;font-weight:600;letter-spacing:.3px;line-height:1.1;}
+  .brand .lema{font-size:11.5px;color:var(--dorado);font-style:italic;font-weight:400;letter-spacing:.4px;}
+  .demo-tag{position:absolute;top:16px;right:16px;font-size:9.5px;font-weight:600;background:var(--rosa-suave);color:var(--marron-osc);padding:3px 9px;border-radius:20px;letter-spacing:.5px;}
+
+  .view{flex:1;padding:18px 16px 96px;display:none;animation:fade .25s ease;}
+  .view.on{display:block;}
+  @keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+
+  .eyebrow{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dorado);font-weight:600;margin-bottom:3px;}
+  .h-sec{font-size:22px;font-weight:600;margin-bottom:14px;letter-spacing:.2px;}
+  .h-sec .sub{display:block;font-size:12px;font-weight:400;color:var(--texto-suave);letter-spacing:0;margin-top:2px;}
+
+  .card{background:var(--blanco);border-radius:18px;padding:16px;border:1px solid rgba(196,150,90,0.18);box-shadow:0 6px 18px rgba(61,43,26,0.06);margin-bottom:13px;}
+
+  .tiles{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:6px;}
+  .tile{background:var(--blanco);border-radius:16px;padding:14px 15px;border:1px solid rgba(196,150,90,0.18);box-shadow:0 5px 14px rgba(61,43,26,0.05);}
+  .tile.rosa{background:linear-gradient(150deg,var(--blanco),var(--rosa-suave));}
+  .tile.dor{background:linear-gradient(150deg,var(--blanco),var(--dorado-claro));}
+  .tile.maq{background:linear-gradient(150deg,var(--blanco),var(--maqui-suave));}
+  .tile .lbl{font-size:11px;color:var(--texto-suave);font-weight:500;letter-spacing:.3px;}
+  .tile .val{font-size:23px;font-weight:600;margin-top:3px;letter-spacing:.3px;}
+  .tile .chg{font-size:10.5px;font-weight:500;margin-top:2px;}
+  .up{color:var(--verde);} .down{color:var(--rojo);}
+
+  .rubros-mini{display:flex;gap:9px;margin-bottom:6px;}
+  .rmini{flex:1;background:var(--blanco);border-radius:14px;padding:11px 10px;border:1px solid rgba(196,150,90,0.18);text-align:center;}
+  .rmini .rl{font-size:10px;color:var(--texto-suave);font-weight:600;display:flex;align-items:center;justify-content:center;gap:4px;}
+  .rmini .rv{font-size:15px;font-weight:600;margin-top:3px;}
+  .rdot{width:8px;height:8px;border-radius:50%;display:inline-block;}
+  .rdot.pel{background:var(--dorado);} .rdot.pro{background:var(--rosa);} .rdot.maq{background:var(--maqui);}
+
+  .block-title{font-size:13px;font-weight:600;color:var(--marron-osc);margin:18px 2px 9px;letter-spacing:.3px;display:flex;justify-content:space-between;align-items:center;}
+  .block-title a{font-size:11px;color:var(--dorado);font-weight:500;text-decoration:none;cursor:pointer;}
+
+  .row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid rgba(196,150,90,0.14);}
+  .row:last-child{border-bottom:none;}
+  .avatar{width:40px;height:40px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:15px;color:var(--marron-osc);background:var(--crema-osc);}
+  .row .info{flex:1;min-width:0;}
+  .row .nm{font-size:14.5px;font-weight:500;}
+  .row .meta{font-size:11.5px;color:var(--texto-suave);margin-top:1px;}
+  .row .rt{text-align:right;flex-shrink:0;}
+  .row .rt .amt{font-size:14px;font-weight:600;}
+  .row .rt .tag{font-size:10.5px;color:var(--texto-suave);}
+
+  .chip{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:500;padding:3px 9px;border-radius:20px;background:var(--crema-osc);color:var(--marron-osc);}
+  .chip.pago{background:var(--dorado-claro);}
+  .chip.pel{background:var(--dorado-claro);} .chip.pro{background:var(--rosa-suave);} .chip.maq{background:var(--maqui-suave);}
+  .hair-dot{width:11px;height:11px;border-radius:50%;display:inline-block;border:1.5px solid rgba(255,255,255,0.7);box-shadow:0 0 0 1px rgba(61,43,26,0.12);}
+
+  .search{display:flex;align-items:center;gap:9px;background:var(--blanco);border:1px solid rgba(196,150,90,0.25);border-radius:14px;padding:11px 14px;margin-bottom:14px;}
+  .search input{border:none;outline:none;font-family:inherit;font-size:14px;flex:1;background:transparent;color:var(--marron);}
+
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;background:var(--dorado);color:var(--blanco);border:none;font-family:inherit;font-size:14px;font-weight:600;padding:13px 18px;border-radius:14px;cursor:pointer;width:100%;box-shadow:0 5px 14px var(--glow);letter-spacing:.3px;}
+  .btn.ghost{background:transparent;color:var(--dorado);box-shadow:none;border:1.5px solid var(--dorado);}
+  .btn:active{transform:scale(.98);}
+  .btn-mini{display:flex;gap:8px;margin-bottom:13px;}
+  .btn-mini button{flex:1;font-family:inherit;font-size:11.5px;font-weight:600;padding:11px 6px;border-radius:12px;border:none;cursor:pointer;color:var(--blanco);display:flex;flex-direction:column;align-items:center;gap:3px;line-height:1.1;}
+  .btn-mini .bp{background:var(--dorado);} .btn-mini .bpr{background:var(--rosa);} .btn-mini .bm{background:var(--maqui);}
+  .btn-mini button span{font-size:16px;}
+
+  .alert{display:flex;gap:11px;align-items:center;background:linear-gradient(150deg,var(--rosa-suave),var(--blanco));border-radius:16px;padding:13px 15px;margin-bottom:11px;border:1px solid rgba(232,165,165,0.4);}
+  .alert .ic{width:34px;height:34px;border-radius:10px;background:var(--rosa);color:var(--blanco);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .alert.maq{background:linear-gradient(150deg,var(--maqui-suave),var(--blanco));border-color:rgba(190,124,150,0.4);}
+  .alert.maq .ic{background:var(--maqui);}
+  .alert .tx{flex:1;}
+  .alert .tx b{font-size:14px;font-weight:600;}
+  .alert .tx span{display:block;font-size:11.5px;color:var(--texto-suave);margin-top:1px;}
+
+  .sem{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+  .sem.v{background:var(--verde);} .sem.a{background:var(--amarillo);} .sem.r{background:var(--rojo);}
+
+  .ficha-head{background:linear-gradient(160deg,var(--rosa-suave),var(--dorado-claro));border-radius:20px;padding:20px;margin-bottom:16px;position:relative;overflow:hidden;}
+  .ficha-head .fav{position:absolute;right:-15px;top:-15px;width:90px;height:90px;border-radius:50%;background:rgba(255,255,255,0.25);}
+  .ficha-head .fname{font-size:22px;font-weight:600;}
+  .ficha-head .fmeta{font-size:12px;color:var(--marron-osc);margin-top:3px;}
+  .ficha-rubros{display:flex;gap:8px;margin-top:14px;}
+  .ficha-rubros .fr{flex:1;background:rgba(255,255,255,0.55);border-radius:12px;padding:9px 6px;text-align:center;}
+  .ficha-rubros .fr .n{font-size:15px;font-weight:600;}
+  .ficha-rubros .fr .l{font-size:9.5px;color:var(--marron-osc);font-weight:600;letter-spacing:.2px;}
+
+  .timeline{position:relative;padding-left:22px;}
+  .timeline::before{content:'';position:absolute;left:6px;top:6px;bottom:6px;width:2px;background:var(--dorado-claro);}
+  .tl-item{position:relative;padding-bottom:16px;}
+  .tl-item::before{content:'';position:absolute;left:-22px;top:3px;width:12px;height:12px;border-radius:50%;background:var(--dot,var(--dorado));border:2px solid var(--blanco);box-shadow:0 0 0 1px var(--dorado-claro);}
+  .tl-item .date{font-size:11px;color:var(--dorado);font-weight:600;letter-spacing:.4px;display:flex;justify-content:space-between;align-items:center;}
+  .tl-item .svc{font-size:14px;font-weight:500;margin:2px 0 3px;}
+  .tl-item .det{font-size:12px;color:var(--texto-suave);line-height:1.45;}
+
+  .chart-wrap{overflow-x:auto;padding:6px 0 2px;}
+  .legend{display:flex;gap:16px;justify-content:center;margin-top:6px;font-size:11px;color:var(--texto-suave);}
+  .legend i{width:10px;height:10px;border-radius:3px;display:inline-block;margin-right:5px;vertical-align:middle;}
+  .year-sel{display:flex;gap:8px;margin-bottom:14px;}
+  .year-sel button{flex:1;font-family:inherit;font-size:13px;font-weight:600;padding:9px;border-radius:11px;border:1.5px solid rgba(196,150,90,0.3);background:var(--blanco);color:var(--texto-suave);cursor:pointer;}
+  .year-sel button.on{background:var(--dorado);color:var(--blanco);border-color:var(--dorado);}
+
+  .tabs{display:flex;gap:7px;margin-bottom:14px;overflow-x:auto;padding-bottom:2px;}
+  .tabs button{font-family:inherit;font-size:12.5px;font-weight:600;padding:9px 14px;border-radius:20px;border:1.5px solid rgba(196,150,90,0.3);background:var(--blanco);color:var(--texto-suave);cursor:pointer;white-space:nowrap;flex-shrink:0;}
+  .tabs button.on{background:var(--marron);color:var(--crema);border-color:var(--marron);}
+
+  .seg{display:flex;gap:8px;margin-bottom:14px;}
+  .seg button{flex:1;font-family:inherit;font-size:12.5px;font-weight:600;padding:9px;border-radius:11px;border:none;background:var(--crema-osc);color:var(--texto-suave);cursor:pointer;}
+  .seg button.on{background:var(--marron);color:var(--crema);}
+
+  .note{font-size:11px;color:var(--texto-suave);background:var(--crema-osc);border-radius:10px;padding:9px 11px;margin-bottom:13px;line-height:1.4;}
+
+  .nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:440px;background:var(--blanco);border-top:1px solid rgba(196,150,90,0.25);display:flex;justify-content:space-around;padding:8px 4px calc(8px + env(safe-area-inset-bottom));z-index:30;box-shadow:0 -4px 20px rgba(61,43,26,0.06);}
+  .nav button{background:none;border:none;font-family:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--texto-suave);font-size:10px;font-weight:500;flex:1;padding:4px 0;}
+  .nav button svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.7;}
+  .nav button.on{color:var(--dorado);}
+  .nav button.on svg{stroke:var(--dorado);}
+
+  .fab{position:fixed;bottom:78px;right:calc(50% - 220px + 16px);width:54px;height:54px;border-radius:50%;background:var(--rosa);color:var(--blanco);border:none;font-size:26px;cursor:pointer;box-shadow:0 8px 20px rgba(232,165,165,0.6);z-index:29;display:flex;align-items:center;justify-content:center;}
+  @media(max-width:472px){.fab{right:16px;}}
+
+  .back{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--dorado);font-weight:600;background:none;border:none;font-family:inherit;cursor:pointer;margin-bottom:12px;padding:0;}
+  .empty{text-align:center;color:var(--texto-suave);font-size:13px;padding:30px 10px;}
+  .price-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(196,150,90,0.14);font-size:14px;}
+  .price-row:last-child{border-bottom:none;}
+  .price-row .p{font-weight:600;}
+  .price-row small{color:var(--texto-suave);font-size:11px;display:block;}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="brand">
+      <div class="mark">Y</div>
+      <div>
+        <h1>Yami Espinosa Hair Studio</h1>
+        <div class="lema">Potencio tu esencia</div>
+      </div>
+    </div>
+    <div class="demo-tag">DEMO · datos de ejemplo</div>
+  </div>
+
+  <!-- ================= INICIO ================= -->
+  <div class="view on" id="v-inicio">
+    <div class="eyebrow">Hoy · Miércoles 12 Ago</div>
+    <div class="h-sec">Buen día, Yami ✨</div>
+
+    <div class="tiles">
+      <div class="tile dor"><div class="lbl">Facturación total del mes</div><div class="val">$1.015.000</div><div class="chg up">▲ 20% vs Julio</div></div>
+      <div class="tile rosa"><div class="lbl">Ganancia total del mes</div><div class="val">$681.000</div><div class="chg up">▲ 14%</div></div>
+    </div>
+
+    <div class="block-title">Ganancia por rubro <a onclick="go('caja')">Ver Caja →</a></div>
+    <div class="rubros-mini">
+      <div class="rmini"><div class="rl"><span class="rdot pel"></span>Peluquería</div><div class="rv">$472.000</div></div>
+      <div class="rmini"><div class="rl"><span class="rdot pro"></span>Productos</div><div class="rv">$54.000</div></div>
+      <div class="rmini"><div class="rl"><span class="rdot maq"></span>Maquillaje</div><div class="rv">$155.000</div></div>
+    </div>
+
+    <div class="block-title">Próximos turnos <a onclick="go('turnos')">Ver agenda →</a></div>
+    <div class="alert">
+      <div class="ic">💇</div>
+      <div class="tx"><b>Hoy 16:00 · Sofía Ramírez</b><span>Peluquería · Nutrición + peinado · seña $8.000</span></div>
+    </div>
+    <div class="alert maq">
+      <div class="ic">💄</div>
+      <div class="tx"><b>Mañana 09:00 · Belén Acosta</b><span>Maquillaje · Prueba de novia · seña $15.000</span></div>
+    </div>
+
+    <div class="block-title">Clientas para reactivar <a onclick="go('metricas')">Ver todas →</a></div>
+    <div class="card">
+      <div class="row"><div class="avatar">RB</div><div class="info"><div class="nm">Rocío Benítez</div><div class="meta">Viene cada ~4 sem · hace 9 sem que no viene</div></div><div class="rt"><span class="sem r"></span></div></div>
+      <div class="row"><div class="avatar">MV</div><div class="info"><div class="nm">Marion Villalba</div><div class="meta">Viene cada ~6 sem · hace 10 sem que no viene</div></div><div class="rt"><span class="sem a"></span></div></div>
+    </div>
+  </div>
+
+  <!-- ================= CLIENTAS ================= -->
+  <div class="view" id="v-clientas">
+    <div class="eyebrow">Fichas</div>
+    <div class="h-sec">Clientas <span class="sub">Tocá una para ver su historial</span></div>
+    <div class="search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9B7E6A" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+      <input placeholder="Buscar clienta..." oninput="filtrarClientas(this.value)">
+    </div>
+    <div class="card" id="lista-clientas"></div>
+  </div>
+
+  <!-- ================= FICHA ================= -->
+  <div class="view" id="v-ficha">
+    <button class="back" onclick="go('clientas')">‹ Volver a clientas</button>
+    <div id="ficha-cont"></div>
+  </div>
+
+  <!-- ================= TURNOS ================= -->
+  <div class="view" id="v-turnos">
+    <div class="eyebrow">Agenda única</div>
+    <div class="h-sec">Turnos <span class="sub">Peluquería 💇 y maquillaje 💄 juntos</span></div>
+    <div id="turnos-cont"></div>
+  </div>
+
+  <!-- ================= CAJA ================= -->
+  <div class="view" id="v-caja">
+    <div class="eyebrow">Agosto 2026</div>
+    <div class="h-sec">Caja del mes</div>
+    <div class="tabs">
+      <button class="on" onclick="selRubro(this,'todo')">Todo</button>
+      <button onclick="selRubro(this,'pel')">Peluquería</button>
+      <button onclick="selRubro(this,'pro')">Productos</button>
+      <button onclick="selRubro(this,'maq')">Maquillaje</button>
+    </div>
+    <div id="caja-cont"></div>
+  </div>
+
+  <!-- ================= MÉTRICAS ================= -->
+  <div class="view" id="v-metricas">
+    <div class="eyebrow">Seguimiento</div>
+    <div class="h-sec">Métricas</div>
+    <div class="block-title">Evolución del año</div>
+    <div class="year-sel">
+      <button class="on" onclick="selYear(this,2026)">2026</button>
+      <button onclick="selYear(this,2025)">2025</button>
+    </div>
+    <div class="card">
+      <div class="chart-wrap"><div id="chart"></div></div>
+      <div class="legend"><span><i style="background:var(--dorado)"></i>Facturación</span><span><i style="background:var(--rosa)"></i>Ganancia</span></div>
+    </div>
+    <div class="block-title">Top clientas del mes</div>
+    <div class="card" id="top-cont"></div>
+    <div class="block-title">Clientas enfriadas</div>
+    <div class="card" id="enfriadas-cont"></div>
+  </div>
+
+  <div class="nav">
+    <button class="on" data-v="inicio" onclick="go('inicio')"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>Inicio</button>
+    <button data-v="clientas" onclick="go('clientas')"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Clientas</button>
+    <button data-v="turnos" onclick="go('turnos')"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg>Turnos</button>
+    <button data-v="caja" onclick="go('caja')"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/></svg>Caja</button>
+    <button data-v="metricas" onclick="go('metricas')"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Métricas</button>
+  </div>
+  <button class="fab" onclick="alert('En la app real: acá cargás lo del día — visita, turno, venta de producto, maquillaje o gasto ✍️')">+</button>
+</div>
+
+<script>
+/* ============ DATOS FICTICIOS ============ */
+const COL = {rubio:'#E8C99A', chocolate:'#5B3A22', fantasia:'#C77B9E', negro:'#2A211A', castano:'#7A5230', rojizo:'#B15A3C', platino:'#EDE3D2'};
+const RUBRO = {peluqueria:{ic:'💇',dot:'var(--dorado)',chip:'pel',lbl:'Peluquería'}, producto:{ic:'🛍️',dot:'var(--rosa)',chip:'pro',lbl:'Producto'}, maquillaje:{ic:'💄',dot:'var(--maqui)',chip:'maq',lbl:'Maquillaje'}};
+
+const clientas = [
+  {id:1, nombre:'Sofía Ramírez', color:'rubio', freq:'cada 3 sem', visitas:8, pel:148000, pro:22000, maq:0, hist:[
+    {f:'02 Ago 2026', t:'peluqueria', s:'Nutrición + peinado', d:'Rubio con puntas resecas. Nutrición profunda + peinado con ondas.', m:30000},
+    {f:'02 Ago 2026', t:'producto', s:'Máscara de nutrición (llevó)', d:'Se llevó una máscara para mantenimiento en casa.', m:15000},
+    {f:'11 Jul 2026', t:'peluqueria', s:'Mechas + corte', d:'Balayage para levantar el rubio + corte en capas.', m:63000},
+    {f:'18 Jun 2026', t:'peluqueria', s:'Color + corte', d:'Retoque de raíz, base rubio dorado.', m:33000},
+  ]},
+  {id:2, nombre:'Carla Domínguez', color:'fantasia', freq:'cada 4 sem', visitas:6, pel:180000, pro:14000, maq:18000, hist:[
+    {f:'29 Jul 2026', t:'peluqueria', s:'Retoque color fantasía', d:'Rosa viejo. Reavivado + máscara de matiz.', m:40000},
+    {f:'29 Jul 2026', t:'maquillaje', s:'Maquillaje social', d:'Se maquilló para un evento el mismo día.', m:18000},
+    {f:'01 Jul 2026', t:'peluqueria', s:'Decoloración + fantasía', d:'Base decolorada y viraje a rosa viejo.', m:70000},
+  ]},
+  {id:3, nombre:'Daniela Ferreyra', color:'chocolate', freq:'cada 3 sem', visitas:11, pel:268000, pro:30000, maq:0, hist:[
+    {f:'05 Ago 2026', t:'peluqueria', s:'Plastificado', d:'Chocolate intenso. Plastificado para brillo y sellado.', m:30000},
+    {f:'15 Jul 2026', t:'producto', s:'Shampoo + serum (llevó)', d:'Línea de mantenimiento.', m:21000},
+  ]},
+  {id:4, nombre:'Rocío Benítez', color:'castano', freq:'cada 4 sem', visitas:5, pel:97000, pro:0, maq:0, enfriada:'r', hist:[
+    {f:'09 Jun 2026', t:'peluqueria', s:'Alisado', d:'Castaño. Alisado progresivo, muy conforme.', m:45000},
+    {f:'12 May 2026', t:'peluqueria', s:'Corte + nutrición', d:'Corte y nutrición de puntas.', m:26000},
+  ]},
+  {id:5, nombre:'Marion Villalba', color:'rojizo', freq:'cada 6 sem', visitas:4, pel:132000, pro:0, maq:35000, enfriada:'a', hist:[
+    {f:'01 Jun 2026', t:'maquillaje', s:'Maquillaje 15 años (invitada)', d:'Se maquilló para un cumple de 15.', m:35000},
+    {f:'01 Jun 2026', t:'peluqueria', s:'Alisado + corte', d:'Rojizo cobrizo. Alisado y despunte.', m:57000},
+  ]},
+  {id:6, nombre:'Belén Acosta', color:'platino', freq:'nueva', visitas:1, pel:55000, pro:0, maq:0, hist:[
+    {f:'07 Ago 2026', t:'peluqueria', s:'Mechas platinadas', d:'Primera visita. Base castaña a mechas platino. Cliente nueva 🌟', m:55000},
+  ]},
+  {id:7, nombre:'Valentina Sosa', color:'negro', freq:'cada 5 sem', visitas:7, pel:120000, pro:0, maq:75000, hist:[
+    {f:'28 Jul 2026', t:'maquillaje', s:'Maquillaje de novia', d:'Maquillaje para su casamiento. Incluyó prueba previa.', m:75000},
+    {f:'28 Jul 2026', t:'peluqueria', s:'Peinado de novia', d:'Recogido con ondas.', m:35000},
+  ]},
+];
+
+const turnos = [
+  {dia:'Hoy · Mié 12 Ago', items:[
+    {h:'16:00', n:'Sofía Ramírez', t:'peluqueria', s:'Nutrición + peinado', sena:8000},
+    {h:'18:30', n:'Valentina Sosa', t:'peluqueria', s:'Corte', sena:0},
+  ]},
+  {dia:'Mañana · Jue 13 Ago', items:[
+    {h:'09:00', n:'Belén Acosta', t:'maquillaje', s:'Prueba de novia', sena:15000},
+    {h:'11:00', n:'Daniela Ferreyra', t:'peluqueria', s:'Plastificado', sena:10000},
+    {h:'15:00', n:'Carla Domínguez', t:'maquillaje', s:'Maquillaje social', sena:0},
+  ]},
+  {dia:'Viernes 14 Ago', items:[
+    {h:'10:30', n:'Marion Villalba', t:'peluqueria', s:'Color', sena:0},
+  ]},
+];
+
+/* precios/listas por rubro */
+const serviciosPel = [
+  {n:'Corte', p:8000}, {n:'Color / tintura', p:25000}, {n:'Mechas / Balayage', p:55000},
+  {n:'Alisado', p:45000}, {n:'Plastificado', p:30000}, {n:'Nutrición', p:18000}, {n:'Peinado', p:12000},
+];
+const productos = [
+  {n:'Shampoo línea', costo:5500, venta:9000}, {n:'Máscara de tratamiento', costo:9000, venta:15000}, {n:'Serum de puntas', costo:7000, venta:12000},
+];
+const serviciosMaq = [
+  {n:'Maquillaje social / día', p:18000}, {n:'Maquillaje 15 años (invitada)', p:35000},
+  {n:'Prueba de novia', p:25000}, {n:'Maquillaje de novia', p:75000},
+];
+
+/* caja por rubro (mes) */
+const caja = {
+  pel:{fact:698000, gan:472000},
+  pro:{fact:144000, gan:54000},
+  maq:{fact:173000, gan:155000},
+};
+const cajaTotal = {fact:1015000, gan:681000, efectivo:602000, transf:413000};
+
+const gastos = {
+  negocio:[{n:'Tinturas y decolorante', m:48000, f:'04 Ago'},{n:'Insumos peluquería', m:12500, f:'04 Ago'},{n:'Insumos maquillaje', m:18000, f:'06 Ago'},{n:'Shampoo x mayor (reventa)', m:36000, f:'07 Ago'},{n:'Luz del local', m:22000, f:'09 Ago'}],
+  casa:[{n:'Súper', m:41000, f:'05 Ago'},{n:'Varios', m:15000, f:'08 Ago'}],
+};
+
+const facturacion = {
+  2026:{fact:[420,510,485,560,530,610,845,1015,0,0,0,0], gan:[300,360,340,395,372,430,560,681,0,0,0,0]},
+  2025:{fact:[280,310,295,340,360,390,420,455,470,500,540,610], gan:[195,215,205,238,250,270,290,315,325,345,372,420]},
+};
+const meses=['E','F','M','A','M','J','J','A','S','O','N','D'];
+const topMes = [{n:'Valentina Sosa', v:110000},{n:'Carla Domínguez', v:58000},{n:'Belén Acosta', v:55000},{n:'Daniela Ferreyra', v:51000}];
+
+/* ============ HELPERS ============ */
+function go(v){document.querySelectorAll('.view').forEach(el=>el.classList.remove('on'));document.getElementById('v-'+v).classList.add('on');document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on', b.dataset.v===v));window.scrollTo(0,0);}
+function initial(nm){const p=nm.split(' ');return (p[0][0]+(p[1]?p[1][0]:'')).toUpperCase();}
+function money(n){return '$'+n.toLocaleString('es-AR');}
+
+/* ============ CLIENTAS ============ */
+function renderClientas(list){
+  const cont=document.getElementById('lista-clientas');
+  if(!list.length){cont.innerHTML='<div class="empty">No se encontraron clientas.</div>';return;}
+  cont.innerHTML=list.map(c=>`
+    <div class="row" onclick="verFicha(${c.id})">
+      <div class="avatar">${initial(c.nombre)}</div>
+      <div class="info"><div class="nm">${c.nombre}</div><div class="meta"><span class="hair-dot" style="background:${COL[c.color]}"></span> ${c.color} · ${c.freq}</div></div>
+      <div class="rt"><div class="tag">${c.visitas} visita${c.visitas>1?'s':''}</div></div>
+    </div>`).join('');
+}
+function filtrarClientas(q){q=q.toLowerCase();renderClientas(clientas.filter(c=>c.nombre.toLowerCase().includes(q)));}
+function verFicha(id){
+  const c=clientas.find(x=>x.id===id);
+  document.getElementById('ficha-cont').innerHTML=`
+    <div class="ficha-head">
+      <div class="fav"></div>
+      <div class="fname">${c.nombre}</div>
+      <div class="fmeta"><span class="hair-dot" style="background:${COL[c.color]}"></span> Color actual: ${c.color} · Frecuencia: ${c.freq}</div>
+      <div class="ficha-rubros">
+        <div class="fr"><div class="n">${money(c.pel)}</div><div class="l">💇 PELUQUERÍA</div></div>
+        <div class="fr"><div class="n">${money(c.pro)}</div><div class="l">🛍️ PRODUCTOS</div></div>
+        <div class="fr"><div class="n">${money(c.maq)}</div><div class="l">💄 MAQUILLAJE</div></div>
+      </div>
+    </div>
+    <div class="btn-mini">
+      <button class="bp" onclick="alert('En la app real: cargás un servicio de peluquería → suma al total de Peluquería 💇')"><span>💇</span>Cargar peluquería</button>
+      <button class="bpr" onclick="alert('En la app real: cargás una venta de producto → suma al total de Productos, separado del servicio 🛍️')"><span>🛍️</span>Vender producto</button>
+      <button class="bm" onclick="alert('En la app real: cargás un maquillaje → suma al total de Maquillaje 💄')"><span>💄</span>Cargar maquillaje</button>
+    </div>
+    <div class="block-title" style="margin-top:4px">Historial completo</div>
+    <div class="card">
+      <div class="timeline">
+        ${c.hist.map(h=>{const r=RUBRO[h.t];return `<div class="tl-item" style="--dot:${r.dot}"><div class="date">${h.f}<span class="chip ${r.chip}">${r.ic} ${r.lbl}</span></div><div class="svc">${h.s} · ${money(h.m)}</div><div class="det">${h.d}</div></div>`;}).join('')}
+      </div>
+    </div>`;
+  go('ficha');
+}
+
+/* ============ TURNOS ============ */
+function renderTurnos(){
+  document.getElementById('turnos-cont').innerHTML=turnos.map(d=>`
+    <div class="block-title">${d.dia}</div>
+    <div class="card">
+      ${d.items.map(t=>{const r=RUBRO[t.t];return `
+        <div class="row">
+          <div class="avatar" style="background:${t.t==='maquillaje'?'var(--maqui-suave)':'var(--dorado-claro)'}">${t.h}</div>
+          <div class="info"><div class="nm">${t.n}</div><div class="meta"><span class="chip ${r.chip}">${r.ic} ${r.lbl}</span> ${t.s}</div></div>
+          <div class="rt">${t.sena?`<span class="chip pago">Seña ${money(t.sena)}</span>`:''}</div>
+        </div>`;}).join('')}
+    </div>`).join('')
+    + '<button class="btn" onclick="alert(\'En la app real: agendás un turno (peluquería o maquillaje) con clienta, fecha, hora, servicio y seña 📅\')">+ Agendar turno</button>';
+}
+
+/* ============ CAJA ============ */
+function selRubro(btn,r){
+  document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  const c=document.getElementById('caja-cont');
+  if(r==='todo'){
+    c.innerHTML=`
+      <div class="tiles"><div class="tile dor"><div class="lbl">Facturación total</div><div class="val">${money(cajaTotal.fact)}</div></div><div class="tile rosa"><div class="lbl">Ganancia total</div><div class="val">${money(cajaTotal.gan)}</div></div></div>
+      <div class="tiles"><div class="tile"><div class="lbl">Efectivo</div><div class="val" style="font-size:19px">${money(cajaTotal.efectivo)}</div></div><div class="tile"><div class="lbl">Transferencia</div><div class="val" style="font-size:19px">${money(cajaTotal.transf)}</div></div></div>
+      <div class="block-title">Desglose por rubro</div>
+      <div class="card">
+        ${rubroRow('pel','💇 Peluquería','var(--dorado)')}
+        ${rubroRow('pro','🛍️ Productos','var(--rosa)')}
+        ${rubroRow('maq','💄 Maquillaje','var(--maqui)')}
+      </div>
+      <div class="block-title">Gastos</div>
+      <div class="seg"><button class="on" onclick="segGasto(this,'negocio')">Negocio</button><button onclick="segGasto(this,'casa')">Casa</button></div>
+      <div class="card" id="gastos-cont"></div>`;
+    segGasto(document.querySelector('.seg button'),'negocio');
+  } else {
+    const d=caja[r];
+    const dorClass=r==='pel'?'dor':r==='pro'?'rosa':'maq';
+    let lista='';
+    if(r==='pel'){lista=`<div class="block-title">Servicios y precios <a onclick="alert('En la app real: editás precios y agregás servicios ✏️')">Editar</a></div><div class="card">${serviciosPel.map(s=>`<div class="price-row"><span>${s.n}</span><span class="p">${money(s.p)}</span></div>`).join('')}</div>`;}
+    else if(r==='pro'){lista=`<div class="block-title">Productos <a onclick="alert('En la app real: editás costo/venta y agregás productos ✏️')">Editar</a></div><div class="card">${productos.map(s=>`<div class="price-row"><span>${s.n}<small>Costo ${money(s.costo)} · Ganás ${money(s.venta-s.costo)}</small></span><span class="p">${money(s.venta)}</span></div>`).join('')}</div>`;}
+    else{lista=`<div class="block-title">Tipos de maquillaje <a onclick="alert('En la app real: editás precios y agregás tipos ✏️')">Editar</a></div><div class="card">${serviciosMaq.map(s=>`<div class="price-row"><span>${s.n}</span><span class="p">${money(s.p)}</span></div>`).join('')}</div>`;}
+    c.innerHTML=`<div class="tiles"><div class="tile ${dorClass}"><div class="lbl">Facturación ${RUBRO[r==='pel'?'peluqueria':r==='pro'?'producto':'maquillaje'].lbl}</div><div class="val">${money(d.fact)}</div></div><div class="tile"><div class="lbl">Ganancia</div><div class="val">${money(d.gan)}</div></div></div>${lista}`;
+  }
+}
+function rubroRow(r,lbl,color){const d=caja[r];return `<div class="row"><div class="info"><div class="nm">${lbl}</div><div class="meta">Ganancia ${money(d.gan)}</div></div><div class="rt"><div class="amt">${money(d.fact)}</div><div class="tag">facturado</div></div></div>`;}
+function segGasto(btn,tipo){
+  document.querySelectorAll('.seg button').forEach(b=>b.classList.remove('on'));btn.classList.add('on');
+  const list=gastos[tipo];const total=list.reduce((a,g)=>a+g.m,0);
+  document.getElementById('gastos-cont').innerHTML=list.map(g=>`<div class="row"><div class="info"><div class="nm">${g.n}</div><div class="meta">${g.f}</div></div><div class="rt"><div class="amt">${money(g.m)}</div></div></div>`).join('')+`<div class="row"><div class="info"><div class="nm" style="color:var(--dorado)">Total ${tipo}</div></div><div class="rt"><div class="amt" style="color:var(--dorado)">${money(total)}</div></div></div>`;
+}
+
+/* ============ MÉTRICAS ============ */
+let yearActual=2026;
+function selYear(btn,y){document.querySelectorAll('.year-sel button').forEach(b=>b.classList.remove('on'));btn.classList.add('on');yearActual=y;renderChart();}
+function renderChart(){
+  const d=facturacion[yearActual];const max=Math.max(...d.fact)||1;const W=340,H=170,pad=22,bw=W/12;let bars='';
+  for(let i=0;i<12;i++){const fh=(d.fact[i]/max)*(H-pad-20);const gh=(d.gan[i]/max)*(H-pad-20);const x=i*bw+6;
+    bars+=`<rect x="${x}" y="${H-pad-fh}" width="${bw/2-3}" height="${fh}" rx="3" fill="var(--dorado)" opacity="${d.fact[i]?1:.15}"/>`;
+    bars+=`<rect x="${x+bw/2-2}" y="${H-pad-gh}" width="${bw/2-3}" height="${gh}" rx="3" fill="var(--rosa)" opacity="${d.gan[i]?1:.15}"/>`;
+    bars+=`<text x="${x+bw/2-2}" y="${H-6}" font-size="10" fill="var(--texto-suave)" text-anchor="middle" font-family="Jost">${meses[i]}</text>`;}
+  document.getElementById('chart').innerHTML=`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${bars}</svg>`;
+}
+function renderTop(){const s=[...topMes].sort((a,b)=>b.v-a.v);document.getElementById('top-cont').innerHTML=s.map((t,i)=>`<div class="row"><div class="avatar" style="background:${i===0?'var(--dorado-claro)':'var(--crema-osc)'}">${i+1}</div><div class="info"><div class="nm">${t.n}</div></div><div class="rt"><div class="amt">${money(t.v)}</div></div></div>`).join('');}
+function renderEnfriadas(){const enf=clientas.filter(c=>c.enfriada);document.getElementById('enfriadas-cont').innerHTML=enf.map(c=>`<div class="row" onclick="verFicha(${c.id})"><div class="avatar">${initial(c.nombre)}</div><div class="info"><div class="nm">${c.nombre}</div><div class="meta">Ritmo ${c.freq} · atrasada</div></div><div class="rt"><span class="sem ${c.enfriada}"></span></div></div>`).join('')+'<div style="font-size:11px;color:var(--texto-suave);padding-top:10px;text-align:center">🟢 al día · 🟡 se pasó un poco · 🔴 se pasó bastante</div>';}
+
+/* ============ INIT ============ */
+renderClientas(clientas);renderTurnos();selRubro(document.querySelector('.tabs button'),'todo');renderChart();renderTop();renderEnfriadas();
+</script>
+</body>
+</html>
