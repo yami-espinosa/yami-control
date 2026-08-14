@@ -27,7 +27,7 @@
   .brand .mark{width:42px;height:42px;border-radius:50%;flex-shrink:0;background:radial-gradient(circle at 35% 30%,var(--dorado-claro),var(--dorado));display:flex;align-items:center;justify-content:center;color:var(--blanco);font-weight:600;font-size:19px;box-shadow:0 4px 14px var(--glow);}
   .brand h1{font-size:17px;font-weight:600;letter-spacing:.3px;line-height:1.1;}
   .brand .lema{font-size:11.5px;color:var(--dorado);font-style:italic;font-weight:400;letter-spacing:.4px;}
-  .demo-tag{position:absolute;top:16px;right:16px;font-size:9.5px;font-weight:600;background:var(--rosa-suave);color:var(--marron-osc);padding:3px 9px;border-radius:20px;letter-spacing:.5px;}
+  .logout{position:absolute;top:16px;right:16px;font-size:11px;font-weight:600;background:var(--crema-osc);color:var(--marron-osc);padding:5px 11px;border-radius:20px;border:none;cursor:pointer;}
 
   .view{flex:1;padding:18px 16px 96px;display:none;animation:fade .25s ease;}
   .view.on{display:block;}
@@ -80,6 +80,7 @@
   .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;background:var(--dorado);color:var(--blanco);border:none;font-family:inherit;font-size:14px;font-weight:600;padding:13px 18px;border-radius:14px;cursor:pointer;width:100%;box-shadow:0 5px 14px var(--glow);letter-spacing:.3px;}
   .btn.ghost{background:transparent;color:var(--dorado);box-shadow:none;border:1.5px solid var(--dorado);}
   .btn:active{transform:scale(.98);}
+  .btn:disabled{opacity:.6;cursor:not-allowed;}
   .btn-mini{display:flex;gap:8px;margin-bottom:13px;}
   .btn-mini button{flex:1;font-family:inherit;font-size:11.5px;font-weight:600;padding:11px 6px;border-radius:12px;border:none;cursor:pointer;color:var(--blanco);display:flex;flex-direction:column;align-items:center;gap:3px;line-height:1.1;}
   .btn-mini .bp{background:var(--dorado);} .btn-mini .bpr{background:var(--rosa);} .btn-mini .bm{background:var(--maqui);}
@@ -145,10 +146,57 @@
   .price-row:last-child{border-bottom:none;}
   .price-row .p{font-weight:600;}
   .price-row small{color:var(--texto-suave);font-size:11px;display:block;}
+
+  /* ===== LOGIN ===== */
+  #login-screen{position:fixed;inset:0;z-index:100;background:linear-gradient(165deg,var(--crema) 0%,var(--crema-osc) 100%);display:flex;align-items:center;justify-content:center;padding:24px;}
+  .login-box{width:100%;max-width:360px;text-align:center;}
+  .login-box .mark{width:70px;height:70px;border-radius:50%;margin:0 auto 18px;background:radial-gradient(circle at 35% 30%,var(--dorado-claro),var(--dorado));display:flex;align-items:center;justify-content:center;color:var(--blanco);font-weight:600;font-size:32px;box-shadow:0 8px 24px var(--glow);}
+  .login-box h1{font-size:22px;font-weight:600;}
+  .login-box .lema{font-size:13px;color:var(--dorado);font-style:italic;margin-bottom:26px;}
+  .login-box input{width:100%;font-family:inherit;font-size:15px;padding:14px 16px;border-radius:14px;border:1.5px solid rgba(196,150,90,0.3);background:var(--blanco);color:var(--marron);margin-bottom:11px;outline:none;}
+  .login-box input:focus{border-color:var(--dorado);}
+  .login-err{font-size:12.5px;color:var(--rojo);min-height:18px;margin-bottom:8px;font-weight:500;}
+
+  /* ===== MODAL ===== */
+  .modal-bg{position:fixed;inset:0;z-index:90;background:rgba(61,43,26,0.45);display:none;align-items:flex-end;justify-content:center;}
+  .modal-bg.on{display:flex;}
+  .modal{width:100%;max-width:440px;background:var(--crema);border-radius:22px 22px 0 0;padding:22px 18px calc(22px + env(safe-area-inset-bottom));animation:slideup .28s ease;max-height:90vh;overflow-y:auto;}
+  @keyframes slideup{from{transform:translateY(100%);}to{transform:none;}}
+  .modal h3{font-size:18px;font-weight:600;margin-bottom:4px;}
+  .modal .msub{font-size:12px;color:var(--texto-suave);margin-bottom:16px;}
+  .modal label{display:block;font-size:12px;font-weight:600;color:var(--marron-osc);margin:12px 2px 5px;letter-spacing:.2px;}
+  .modal input,.modal select,.modal textarea{width:100%;font-family:inherit;font-size:15px;padding:12px 14px;border-radius:12px;border:1.5px solid rgba(196,150,90,0.3);background:var(--blanco);color:var(--marron);outline:none;}
+  .modal input:focus,.modal select:focus,.modal textarea:focus{border-color:var(--dorado);}
+  .modal textarea{resize:vertical;min-height:60px;}
+  .modal .m-actions{display:flex;gap:10px;margin-top:20px;}
+  .modal .m-actions button{flex:1;}
+  .btn-cancel{background:transparent;color:var(--texto-suave);border:1.5px solid rgba(155,126,106,0.4);box-shadow:none;}
+  .two{display:flex;gap:10px;}
+  .two>div{flex:1;}
+
+  /* toast */
+  #toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--marron);color:var(--crema);font-size:13px;font-weight:500;padding:11px 20px;border-radius:30px;z-index:110;opacity:0;transition:.3s;pointer-events:none;max-width:90%;text-align:center;}
+  #toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
+  .spin{width:34px;height:34px;border:3px solid var(--crema-osc);border-top-color:var(--dorado);border-radius:50%;animation:sp 1s linear infinite;margin:30px auto;}
+  @keyframes sp{to{transform:rotate(360deg);}}
 </style>
 </head>
 <body>
-<div class="app">
+
+<!-- ================= LOGIN ================= -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="mark">Y</div>
+    <h1>Yami Espinosa Hair Studio</h1>
+    <div class="lema">Potencio tu esencia</div>
+    <input type="email" id="log-email" placeholder="Tu correo" autocomplete="username">
+    <input type="password" id="log-pass" placeholder="Tu contraseña" autocomplete="current-password">
+    <div class="login-err" id="log-err"></div>
+    <button class="btn" id="log-btn" onclick="hacerLogin()">Entrar</button>
+  </div>
+</div>
+
+<div class="app" id="app" style="display:none">
   <div class="top">
     <div class="brand">
       <div class="mark">Y</div>
@@ -157,44 +205,30 @@
         <div class="lema">Potencio tu esencia</div>
       </div>
     </div>
-    <div class="demo-tag">DEMO · datos de ejemplo</div>
+    <button class="logout" onclick="hacerLogout()">Salir</button>
   </div>
 
-  <!-- ================= INICIO ================= -->
+  <!-- ================= INICIO (demo) ================= -->
   <div class="view on" id="v-inicio">
-    <div class="eyebrow">Hoy · Miércoles 12 Ago</div>
-    <div class="h-sec">Buen día, Yami ✨</div>
+    <div class="eyebrow" id="hoy-lbl">Hoy</div>
+    <div class="h-sec">Hola, Yami ✨</div>
+    <div class="note">📊 Los números de Inicio, Turnos, Caja y Métricas todavía son de ejemplo. La sección <b>Clientas</b> ya es real: lo que cargues ahí se guarda de verdad. El resto lo conectamos en la próxima etapa.</div>
 
     <div class="tiles">
-      <div class="tile dor"><div class="lbl">Facturación total del mes</div><div class="val">$1.015.000</div><div class="chg up">▲ 20% vs Julio</div></div>
-      <div class="tile rosa"><div class="lbl">Ganancia total del mes</div><div class="val">$681.000</div><div class="chg up">▲ 14%</div></div>
+      <div class="tile dor"><div class="lbl">Facturación total del mes</div><div class="val">$1.015.000</div><div class="chg up">▲ ejemplo</div></div>
+      <div class="tile rosa"><div class="lbl">Ganancia total del mes</div><div class="val">$681.000</div><div class="chg up">ejemplo</div></div>
     </div>
-
     <div class="block-title">Ganancia por rubro <a onclick="go('caja')">Ver Caja →</a></div>
     <div class="rubros-mini">
       <div class="rmini"><div class="rl"><span class="rdot pel"></span>Peluquería</div><div class="rv">$472.000</div></div>
       <div class="rmini"><div class="rl"><span class="rdot pro"></span>Productos</div><div class="rv">$54.000</div></div>
       <div class="rmini"><div class="rl"><span class="rdot maq"></span>Maquillaje</div><div class="rv">$155.000</div></div>
     </div>
-
-    <div class="block-title">Próximos turnos <a onclick="go('turnos')">Ver agenda →</a></div>
-    <div class="alert">
-      <div class="ic">💇</div>
-      <div class="tx"><b>Hoy 16:00 · Sofía Ramírez</b><span>Peluquería · Nutrición + peinado · seña $8.000</span></div>
-    </div>
-    <div class="alert maq">
-      <div class="ic">💄</div>
-      <div class="tx"><b>Mañana 09:00 · Belén Acosta</b><span>Maquillaje · Prueba de novia · seña $15.000</span></div>
-    </div>
-
-    <div class="block-title">Clientas para reactivar <a onclick="go('metricas')">Ver todas →</a></div>
-    <div class="card">
-      <div class="row"><div class="avatar">RB</div><div class="info"><div class="nm">Rocío Benítez</div><div class="meta">Viene cada ~4 sem · hace 9 sem que no viene</div></div><div class="rt"><span class="sem r"></span></div></div>
-      <div class="row"><div class="avatar">MV</div><div class="info"><div class="nm">Marion Villalba</div><div class="meta">Viene cada ~6 sem · hace 10 sem que no viene</div></div><div class="rt"><span class="sem a"></span></div></div>
-    </div>
+    <div class="block-title">Clientas <a onclick="go('clientas')">Ver todas →</a></div>
+    <div class="card"><div class="row"><div class="info"><div class="nm" id="ini-total-cl">—</div><div class="meta">clientas cargadas en el sistema</div></div><div class="rt"><span style="font-size:22px">💇‍♀️</span></div></div></div>
   </div>
 
-  <!-- ================= CLIENTAS ================= -->
+  <!-- ================= CLIENTAS (REAL) ================= -->
   <div class="view" id="v-clientas">
     <div class="eyebrow">Fichas</div>
     <div class="h-sec">Clientas <span class="sub">Tocá una para ver su historial</span></div>
@@ -202,25 +236,26 @@
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9B7E6A" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
       <input placeholder="Buscar clienta..." oninput="filtrarClientas(this.value)">
     </div>
-    <div class="card" id="lista-clientas"></div>
+    <div id="lista-clientas"><div class="spin"></div></div>
+    <button class="btn" onclick="abrirModalClienta()" style="margin-top:6px">+ Nueva clienta</button>
   </div>
 
-  <!-- ================= FICHA ================= -->
+  <!-- ================= FICHA (REAL) ================= -->
   <div class="view" id="v-ficha">
     <button class="back" onclick="go('clientas')">‹ Volver a clientas</button>
     <div id="ficha-cont"></div>
   </div>
 
-  <!-- ================= TURNOS ================= -->
+  <!-- ================= TURNOS (demo) ================= -->
   <div class="view" id="v-turnos">
     <div class="eyebrow">Agenda única</div>
-    <div class="h-sec">Turnos <span class="sub">Peluquería 💇 y maquillaje 💄 juntos</span></div>
+    <div class="h-sec">Turnos <span class="sub">Ejemplo — se conecta en la próxima etapa</span></div>
     <div id="turnos-cont"></div>
   </div>
 
-  <!-- ================= CAJA ================= -->
+  <!-- ================= CAJA (demo) ================= -->
   <div class="view" id="v-caja">
-    <div class="eyebrow">Agosto 2026</div>
+    <div class="eyebrow">Ejemplo</div>
     <div class="h-sec">Caja del mes</div>
     <div class="tabs">
       <button class="on" onclick="selRubro(this,'todo')">Todo</button>
@@ -231,10 +266,10 @@
     <div id="caja-cont"></div>
   </div>
 
-  <!-- ================= MÉTRICAS ================= -->
+  <!-- ================= MÉTRICAS (demo) ================= -->
   <div class="view" id="v-metricas">
     <div class="eyebrow">Seguimiento</div>
-    <div class="h-sec">Métricas</div>
+    <div class="h-sec">Métricas <span class="sub">Ejemplo — se conecta en la próxima etapa</span></div>
     <div class="block-title">Evolución del año</div>
     <div class="year-sel">
       <button class="on" onclick="selYear(this,2026)">2026</button>
@@ -246,8 +281,6 @@
     </div>
     <div class="block-title">Top clientas del mes</div>
     <div class="card" id="top-cont"></div>
-    <div class="block-title">Clientas enfriadas</div>
-    <div class="card" id="enfriadas-cont"></div>
   </div>
 
   <div class="nav">
@@ -257,206 +290,254 @@
     <button data-v="caja" onclick="go('caja')"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/></svg>Caja</button>
     <button data-v="metricas" onclick="go('metricas')"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Métricas</button>
   </div>
-  <button class="fab" onclick="alert('En la app real: acá cargás lo del día — visita, turno, venta de producto, maquillaje o gasto ✍️')">+</button>
+  <button class="fab" onclick="abrirModalClienta()">+</button>
 </div>
 
+<!-- ===== MODAL NUEVA CLIENTA ===== -->
+<div class="modal-bg" id="modal-clienta">
+  <div class="modal">
+    <h3>Nueva clienta</h3>
+    <div class="msub">Se guarda en el sistema de verdad</div>
+    <label>Nombre y apellido *</label>
+    <input id="mc-nombre" placeholder="Ej: Sofía Ramírez">
+    <label>Color de pelo actual</label>
+    <input id="mc-color" placeholder="Ej: rubio, chocolate, fantasía...">
+    <label>Notas (opcional)</label>
+    <textarea id="mc-notas" placeholder="Ej: alérgica a tal tintura, prefiere turnos de tarde..."></textarea>
+    <div class="m-actions">
+      <button class="btn btn-cancel" onclick="cerrarModal('modal-clienta')">Cancelar</button>
+      <button class="btn" id="mc-save" onclick="guardarClienta()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL NUEVA VISITA ===== -->
+<div class="modal-bg" id="modal-visita">
+  <div class="modal">
+    <h3 id="mv-titulo">Cargar</h3>
+    <div class="msub" id="mv-sub"></div>
+    <label>¿Qué se hizo / vendió? *</label>
+    <input id="mv-servicio" placeholder="Ej: Nutrición + peinado">
+    <label>Detalle (opcional)</label>
+    <textarea id="mv-detalle" placeholder="Ej: rubio con puntas resecas, se hizo nutrición..."></textarea>
+    <div class="two">
+      <div>
+        <label>Monto *</label>
+        <input id="mv-monto" type="number" inputmode="numeric" placeholder="30000">
+      </div>
+      <div>
+        <label>Fecha</label>
+        <input id="mv-fecha" type="date">
+      </div>
+    </div>
+    <label>Forma de cobro</label>
+    <select id="mv-cobro">
+      <option value="efectivo">Efectivo</option>
+      <option value="transferencia">Transferencia</option>
+    </select>
+    <div class="m-actions">
+      <button class="btn btn-cancel" onclick="cerrarModal('modal-visita')">Cancelar</button>
+      <button class="btn" id="mv-save" onclick="guardarVisita()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-/* ============ DATOS FICTICIOS ============ */
-const COL = {rubio:'#E8C99A', chocolate:'#5B3A22', fantasia:'#C77B9E', negro:'#2A211A', castano:'#7A5230', rojizo:'#B15A3C', platino:'#EDE3D2'};
+/* ============ CONFIG SUPABASE ============ */
+const SB_URL = 'https://roemewjplxwydbgpfmbk.supabase.co';
+const SB_KEY = 'sb_publishable_rpC4YSA3HzY07HV79yLUJQ_iWzWmFWx';
+const sb = supabase.createClient(SB_URL, SB_KEY);
+
+/* ============ CONSTANTES ============ */
+const COL = {rubio:'#E8C99A', chocolate:'#5B3A22', fantasia:'#C77B9E', negro:'#2A211A', castano:'#7A5230', castaño:'#7A5230', rojizo:'#B15A3C', platino:'#EDE3D2', colorado:'#B15A3C', rubia:'#E8C99A'};
 const RUBRO = {peluqueria:{ic:'💇',dot:'var(--dorado)',chip:'pel',lbl:'Peluquería'}, producto:{ic:'🛍️',dot:'var(--rosa)',chip:'pro',lbl:'Producto'}, maquillaje:{ic:'💄',dot:'var(--maqui)',chip:'maq',lbl:'Maquillaje'}};
 
-const clientas = [
-  {id:1, nombre:'Sofía Ramírez', color:'rubio', freq:'cada 3 sem', visitas:8, pel:148000, pro:22000, maq:0, hist:[
-    {f:'02 Ago 2026', t:'peluqueria', s:'Nutrición + peinado', d:'Rubio con puntas resecas. Nutrición profunda + peinado con ondas.', m:30000},
-    {f:'02 Ago 2026', t:'producto', s:'Máscara de nutrición (llevó)', d:'Se llevó una máscara para mantenimiento en casa.', m:15000},
-    {f:'11 Jul 2026', t:'peluqueria', s:'Mechas + corte', d:'Balayage para levantar el rubio + corte en capas.', m:63000},
-    {f:'18 Jun 2026', t:'peluqueria', s:'Color + corte', d:'Retoque de raíz, base rubio dorado.', m:33000},
-  ]},
-  {id:2, nombre:'Carla Domínguez', color:'fantasia', freq:'cada 4 sem', visitas:6, pel:180000, pro:14000, maq:18000, hist:[
-    {f:'29 Jul 2026', t:'peluqueria', s:'Retoque color fantasía', d:'Rosa viejo. Reavivado + máscara de matiz.', m:40000},
-    {f:'29 Jul 2026', t:'maquillaje', s:'Maquillaje social', d:'Se maquilló para un evento el mismo día.', m:18000},
-    {f:'01 Jul 2026', t:'peluqueria', s:'Decoloración + fantasía', d:'Base decolorada y viraje a rosa viejo.', m:70000},
-  ]},
-  {id:3, nombre:'Daniela Ferreyra', color:'chocolate', freq:'cada 3 sem', visitas:11, pel:268000, pro:30000, maq:0, hist:[
-    {f:'05 Ago 2026', t:'peluqueria', s:'Plastificado', d:'Chocolate intenso. Plastificado para brillo y sellado.', m:30000},
-    {f:'15 Jul 2026', t:'producto', s:'Shampoo + serum (llevó)', d:'Línea de mantenimiento.', m:21000},
-  ]},
-  {id:4, nombre:'Rocío Benítez', color:'castano', freq:'cada 4 sem', visitas:5, pel:97000, pro:0, maq:0, enfriada:'r', hist:[
-    {f:'09 Jun 2026', t:'peluqueria', s:'Alisado', d:'Castaño. Alisado progresivo, muy conforme.', m:45000},
-    {f:'12 May 2026', t:'peluqueria', s:'Corte + nutrición', d:'Corte y nutrición de puntas.', m:26000},
-  ]},
-  {id:5, nombre:'Marion Villalba', color:'rojizo', freq:'cada 6 sem', visitas:4, pel:132000, pro:0, maq:35000, enfriada:'a', hist:[
-    {f:'01 Jun 2026', t:'maquillaje', s:'Maquillaje 15 años (invitada)', d:'Se maquilló para un cumple de 15.', m:35000},
-    {f:'01 Jun 2026', t:'peluqueria', s:'Alisado + corte', d:'Rojizo cobrizo. Alisado y despunte.', m:57000},
-  ]},
-  {id:6, nombre:'Belén Acosta', color:'platino', freq:'nueva', visitas:1, pel:55000, pro:0, maq:0, hist:[
-    {f:'07 Ago 2026', t:'peluqueria', s:'Mechas platinadas', d:'Primera visita. Base castaña a mechas platino. Cliente nueva 🌟', m:55000},
-  ]},
-  {id:7, nombre:'Valentina Sosa', color:'negro', freq:'cada 5 sem', visitas:7, pel:120000, pro:0, maq:75000, hist:[
-    {f:'28 Jul 2026', t:'maquillaje', s:'Maquillaje de novia', d:'Maquillaje para su casamiento. Incluyó prueba previa.', m:75000},
-    {f:'28 Jul 2026', t:'peluqueria', s:'Peinado de novia', d:'Recogido con ondas.', m:35000},
-  ]},
-];
-
-const turnos = [
-  {dia:'Hoy · Mié 12 Ago', items:[
-    {h:'16:00', n:'Sofía Ramírez', t:'peluqueria', s:'Nutrición + peinado', sena:8000},
-    {h:'18:30', n:'Valentina Sosa', t:'peluqueria', s:'Corte', sena:0},
-  ]},
-  {dia:'Mañana · Jue 13 Ago', items:[
-    {h:'09:00', n:'Belén Acosta', t:'maquillaje', s:'Prueba de novia', sena:15000},
-    {h:'11:00', n:'Daniela Ferreyra', t:'peluqueria', s:'Plastificado', sena:10000},
-    {h:'15:00', n:'Carla Domínguez', t:'maquillaje', s:'Maquillaje social', sena:0},
-  ]},
-  {dia:'Viernes 14 Ago', items:[
-    {h:'10:30', n:'Marion Villalba', t:'peluqueria', s:'Color', sena:0},
-  ]},
-];
-
-/* precios/listas por rubro */
-const serviciosPel = [
-  {n:'Corte', p:8000}, {n:'Color / tintura', p:25000}, {n:'Mechas / Balayage', p:55000},
-  {n:'Alisado', p:45000}, {n:'Plastificado', p:30000}, {n:'Nutrición', p:18000}, {n:'Peinado', p:12000},
-];
-const productos = [
-  {n:'Shampoo línea', costo:5500, venta:9000}, {n:'Máscara de tratamiento', costo:9000, venta:15000}, {n:'Serum de puntas', costo:7000, venta:12000},
-];
-const serviciosMaq = [
-  {n:'Maquillaje social / día', p:18000}, {n:'Maquillaje 15 años (invitada)', p:35000},
-  {n:'Prueba de novia', p:25000}, {n:'Maquillaje de novia', p:75000},
-];
-
-/* caja por rubro (mes) */
-const caja = {
-  pel:{fact:698000, gan:472000},
-  pro:{fact:144000, gan:54000},
-  maq:{fact:173000, gan:155000},
-};
-const cajaTotal = {fact:1015000, gan:681000, efectivo:602000, transf:413000};
-
-const gastos = {
-  negocio:[{n:'Tinturas y decolorante', m:48000, f:'04 Ago'},{n:'Insumos peluquería', m:12500, f:'04 Ago'},{n:'Insumos maquillaje', m:18000, f:'06 Ago'},{n:'Shampoo x mayor (reventa)', m:36000, f:'07 Ago'},{n:'Luz del local', m:22000, f:'09 Ago'}],
-  casa:[{n:'Súper', m:41000, f:'05 Ago'},{n:'Varios', m:15000, f:'08 Ago'}],
-};
-
-const facturacion = {
-  2026:{fact:[420,510,485,560,530,610,845,1015,0,0,0,0], gan:[300,360,340,395,372,430,560,681,0,0,0,0]},
-  2025:{fact:[280,310,295,340,360,390,420,455,470,500,540,610], gan:[195,215,205,238,250,270,290,315,325,345,372,420]},
-};
-const meses=['E','F','M','A','M','J','J','A','S','O','N','D'];
-const topMes = [{n:'Valentina Sosa', v:110000},{n:'Carla Domínguez', v:58000},{n:'Belén Acosta', v:55000},{n:'Daniela Ferreyra', v:51000}];
+let clientasDB = [];      // clientas reales con sus visitas
+let fichaActualId = null; // clienta abierta en la ficha
+let rubroCargando = null; // rubro del modal de visita
 
 /* ============ HELPERS ============ */
 function go(v){document.querySelectorAll('.view').forEach(el=>el.classList.remove('on'));document.getElementById('v-'+v).classList.add('on');document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on', b.dataset.v===v));window.scrollTo(0,0);}
-function initial(nm){const p=nm.split(' ');return (p[0][0]+(p[1]?p[1][0]:'')).toUpperCase();}
-function money(n){return '$'+n.toLocaleString('es-AR');}
+function initial(nm){const p=(nm||'?').trim().split(/\s+/);return ((p[0][0]||'?')+(p[1]?p[1][0]:'')).toUpperCase();}
+function money(n){return '$'+Number(n||0).toLocaleString('es-AR');}
+function colorHex(c){if(!c)return 'var(--crema-osc)';return COL[c.toLowerCase().trim()]||'#C9A98A';}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2600);}
+function hoyISO(){const d=new Date();return d.toISOString().slice(0,10);}
+function fechaLinda(iso){if(!iso)return '';const [a,m,d]=iso.split('-');const M=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];return `${d} ${M[+m-1]} ${a}`;}
 
-/* ============ CLIENTAS ============ */
+/* ============ AUTENTICACIÓN ============ */
+async function initAuth(){
+  const {data:{session}} = await sb.auth.getSession();
+  if(session){ mostrarApp(); } else { mostrarLogin(); }
+}
+function mostrarLogin(){document.getElementById('login-screen').style.display='flex';document.getElementById('app').style.display='none';}
+function mostrarApp(){document.getElementById('login-screen').style.display='none';document.getElementById('app').style.display='flex';initDemo();cargarClientas();
+  const hoy=new Date();document.getElementById('hoy-lbl').textContent='Hoy · '+hoy.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'});}
+async function hacerLogin(){
+  const email=document.getElementById('log-email').value.trim();
+  const pass=document.getElementById('log-pass').value;
+  const err=document.getElementById('log-err');
+  const btn=document.getElementById('log-btn');
+  err.textContent='';
+  if(!email||!pass){err.textContent='Completá correo y contraseña.';return;}
+  btn.disabled=true;btn.textContent='Entrando...';
+  const {error} = await sb.auth.signInWithPassword({email,password:pass});
+  btn.disabled=false;btn.textContent='Entrar';
+  if(error){err.textContent='Correo o contraseña incorrectos.';return;}
+  document.getElementById('log-pass').value='';
+  mostrarApp();
+}
+async function hacerLogout(){await sb.auth.signOut();clientasDB=[];mostrarLogin();}
+
+/* ============ CLIENTAS (REAL) ============ */
+async function cargarClientas(){
+  const cont=document.getElementById('lista-clientas');
+  cont.innerHTML='<div class="spin"></div>';
+  const {data:cls, error:e1} = await sb.from('clientas').select('*').order('nombre');
+  if(e1){cont.innerHTML='<div class="empty">Error al cargar clientas.<br>'+e1.message+'</div>';return;}
+  const {data:vis, error:e2} = await sb.from('visitas').select('*').order('fecha',{ascending:false});
+  const visitas = e2?[]:vis;
+  clientasDB = (cls||[]).map(c=>{
+    const propias = visitas.filter(v=>v.clienta_id===c.id);
+    const suma = r => propias.filter(v=>v.rubro===r).reduce((a,v)=>a+Number(v.monto||0),0);
+    return {...c, visitas:propias, pel:suma('peluqueria'), pro:suma('producto'), maq:suma('maquillaje')};
+  });
+  document.getElementById('ini-total-cl').textContent = clientasDB.length;
+  renderClientas(clientasDB);
+}
 function renderClientas(list){
   const cont=document.getElementById('lista-clientas');
-  if(!list.length){cont.innerHTML='<div class="empty">No se encontraron clientas.</div>';return;}
-  cont.innerHTML=list.map(c=>`
+  if(!list.length){cont.innerHTML='<div class="card"><div class="empty">Todavía no hay clientas cargadas.<br>Tocá <b>+ Nueva clienta</b> para empezar.</div></div>';return;}
+  cont.innerHTML='<div class="card">'+list.map(c=>`
     <div class="row" onclick="verFicha(${c.id})">
       <div class="avatar">${initial(c.nombre)}</div>
-      <div class="info"><div class="nm">${c.nombre}</div><div class="meta"><span class="hair-dot" style="background:${COL[c.color]}"></span> ${c.color} · ${c.freq}</div></div>
-      <div class="rt"><div class="tag">${c.visitas} visita${c.visitas>1?'s':''}</div></div>
-    </div>`).join('');
+      <div class="info"><div class="nm">${c.nombre}</div><div class="meta"><span class="hair-dot" style="background:${colorHex(c.color_pelo)}"></span> ${c.color_pelo||'sin color'} · ${c.visitas.length} visita${c.visitas.length!==1?'s':''}</div></div>
+      <div class="rt"><div class="tag">${money(c.pel+c.pro+c.maq)}</div></div>
+    </div>`).join('')+'</div>';
 }
-function filtrarClientas(q){q=q.toLowerCase();renderClientas(clientas.filter(c=>c.nombre.toLowerCase().includes(q)));}
+function filtrarClientas(q){q=q.toLowerCase();renderClientas(clientasDB.filter(c=>(c.nombre||'').toLowerCase().includes(q)));}
+
 function verFicha(id){
-  const c=clientas.find(x=>x.id===id);
+  const c=clientasDB.find(x=>x.id===id); if(!c)return;
+  fichaActualId=id;
   document.getElementById('ficha-cont').innerHTML=`
     <div class="ficha-head">
       <div class="fav"></div>
       <div class="fname">${c.nombre}</div>
-      <div class="fmeta"><span class="hair-dot" style="background:${COL[c.color]}"></span> Color actual: ${c.color} · Frecuencia: ${c.freq}</div>
+      <div class="fmeta"><span class="hair-dot" style="background:${colorHex(c.color_pelo)}"></span> Color: ${c.color_pelo||'—'}${c.notas?' · '+c.notas:''}</div>
       <div class="ficha-rubros">
-        <div class="fr"><div class="n">${money(c.pel)}</div><div class="l">💇 PELUQUERÍA</div></div>
-        <div class="fr"><div class="n">${money(c.pro)}</div><div class="l">🛍️ PRODUCTOS</div></div>
-        <div class="fr"><div class="n">${money(c.maq)}</div><div class="l">💄 MAQUILLAJE</div></div>
+        <div class="fr"><div class="n">${money(c.pel)}</div><div class="l">💇 PELU</div></div>
+        <div class="fr"><div class="n">${money(c.pro)}</div><div class="l">🛍️ PROD</div></div>
+        <div class="fr"><div class="n">${money(c.maq)}</div><div class="l">💄 MAQUI</div></div>
       </div>
     </div>
     <div class="btn-mini">
-      <button class="bp" onclick="alert('En la app real: cargás un servicio de peluquería → suma al total de Peluquería 💇')"><span>💇</span>Cargar peluquería</button>
-      <button class="bpr" onclick="alert('En la app real: cargás una venta de producto → suma al total de Productos, separado del servicio 🛍️')"><span>🛍️</span>Vender producto</button>
-      <button class="bm" onclick="alert('En la app real: cargás un maquillaje → suma al total de Maquillaje 💄')"><span>💄</span>Cargar maquillaje</button>
+      <button class="bp" onclick="abrirModalVisita(${c.id},'peluqueria')"><span>💇</span>Peluquería</button>
+      <button class="bpr" onclick="abrirModalVisita(${c.id},'producto')"><span>🛍️</span>Producto</button>
+      <button class="bm" onclick="abrirModalVisita(${c.id},'maquillaje')"><span>💄</span>Maquillaje</button>
     </div>
-    <div class="block-title" style="margin-top:4px">Historial completo</div>
+    <div class="block-title" style="margin-top:4px">Historial (${c.visitas.length})</div>
     <div class="card">
-      <div class="timeline">
-        ${c.hist.map(h=>{const r=RUBRO[h.t];return `<div class="tl-item" style="--dot:${r.dot}"><div class="date">${h.f}<span class="chip ${r.chip}">${r.ic} ${r.lbl}</span></div><div class="svc">${h.s} · ${money(h.m)}</div><div class="det">${h.d}</div></div>`;}).join('')}
-      </div>
+      ${c.visitas.length? '<div class="timeline">'+c.visitas.map(h=>{const r=RUBRO[h.rubro]||RUBRO.peluqueria;return `<div class="tl-item" style="--dot:${r.dot}"><div class="date">${fechaLinda(h.fecha)}<span class="chip ${r.chip}">${r.ic} ${r.lbl}</span></div><div class="svc">${h.servicio||'(sin detalle)'} · ${money(h.monto)}</div>${h.detalle?`<div class="det">${h.detalle}</div>`:''}</div>`;}).join('')+'</div>' : '<div class="empty">Sin visitas todavía. Cargá la primera con los botones de arriba.</div>'}
     </div>`;
   go('ficha');
 }
 
-/* ============ TURNOS ============ */
-function renderTurnos(){
-  document.getElementById('turnos-cont').innerHTML=turnos.map(d=>`
-    <div class="block-title">${d.dia}</div>
-    <div class="card">
-      ${d.items.map(t=>{const r=RUBRO[t.t];return `
-        <div class="row">
-          <div class="avatar" style="background:${t.t==='maquillaje'?'var(--maqui-suave)':'var(--dorado-claro)'}">${t.h}</div>
-          <div class="info"><div class="nm">${t.n}</div><div class="meta"><span class="chip ${r.chip}">${r.ic} ${r.lbl}</span> ${t.s}</div></div>
-          <div class="rt">${t.sena?`<span class="chip pago">Seña ${money(t.sena)}</span>`:''}</div>
-        </div>`;}).join('')}
-    </div>`).join('')
-    + '<button class="btn" onclick="alert(\'En la app real: agendás un turno (peluquería o maquillaje) con clienta, fecha, hora, servicio y seña 📅\')">+ Agendar turno</button>';
+/* ============ MODAL CLIENTA ============ */
+function abrirModalClienta(){document.getElementById('mc-nombre').value='';document.getElementById('mc-color').value='';document.getElementById('mc-notas').value='';abrirModal('modal-clienta');document.getElementById('mc-nombre').focus();}
+async function guardarClienta(){
+  const nombre=document.getElementById('mc-nombre').value.trim();
+  if(!nombre){toast('Poné al menos el nombre');return;}
+  const btn=document.getElementById('mc-save');btn.disabled=true;btn.textContent='Guardando...';
+  const {error}=await sb.from('clientas').insert({
+    nombre, color_pelo:document.getElementById('mc-color').value.trim()||null, notas:document.getElementById('mc-notas').value.trim()||null
+  });
+  btn.disabled=false;btn.textContent='Guardar';
+  if(error){toast('Error: '+error.message);return;}
+  cerrarModal('modal-clienta');toast('Clienta guardada ✨');
+  await cargarClientas();
 }
 
-/* ============ CAJA ============ */
-function selRubro(btn,r){
-  document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('on'));
-  btn.classList.add('on');
-  const c=document.getElementById('caja-cont');
-  if(r==='todo'){
-    c.innerHTML=`
-      <div class="tiles"><div class="tile dor"><div class="lbl">Facturación total</div><div class="val">${money(cajaTotal.fact)}</div></div><div class="tile rosa"><div class="lbl">Ganancia total</div><div class="val">${money(cajaTotal.gan)}</div></div></div>
-      <div class="tiles"><div class="tile"><div class="lbl">Efectivo</div><div class="val" style="font-size:19px">${money(cajaTotal.efectivo)}</div></div><div class="tile"><div class="lbl">Transferencia</div><div class="val" style="font-size:19px">${money(cajaTotal.transf)}</div></div></div>
-      <div class="block-title">Desglose por rubro</div>
-      <div class="card">
-        ${rubroRow('pel','💇 Peluquería','var(--dorado)')}
-        ${rubroRow('pro','🛍️ Productos','var(--rosa)')}
-        ${rubroRow('maq','💄 Maquillaje','var(--maqui)')}
-      </div>
-      <div class="block-title">Gastos</div>
-      <div class="seg"><button class="on" onclick="segGasto(this,'negocio')">Negocio</button><button onclick="segGasto(this,'casa')">Casa</button></div>
-      <div class="card" id="gastos-cont"></div>`;
-    segGasto(document.querySelector('.seg button'),'negocio');
-  } else {
-    const d=caja[r];
-    const dorClass=r==='pel'?'dor':r==='pro'?'rosa':'maq';
-    let lista='';
-    if(r==='pel'){lista=`<div class="block-title">Servicios y precios <a onclick="alert('En la app real: editás precios y agregás servicios ✏️')">Editar</a></div><div class="card">${serviciosPel.map(s=>`<div class="price-row"><span>${s.n}</span><span class="p">${money(s.p)}</span></div>`).join('')}</div>`;}
-    else if(r==='pro'){lista=`<div class="block-title">Productos <a onclick="alert('En la app real: editás costo/venta y agregás productos ✏️')">Editar</a></div><div class="card">${productos.map(s=>`<div class="price-row"><span>${s.n}<small>Costo ${money(s.costo)} · Ganás ${money(s.venta-s.costo)}</small></span><span class="p">${money(s.venta)}</span></div>`).join('')}</div>`;}
-    else{lista=`<div class="block-title">Tipos de maquillaje <a onclick="alert('En la app real: editás precios y agregás tipos ✏️')">Editar</a></div><div class="card">${serviciosMaq.map(s=>`<div class="price-row"><span>${s.n}</span><span class="p">${money(s.p)}</span></div>`).join('')}</div>`;}
-    c.innerHTML=`<div class="tiles"><div class="tile ${dorClass}"><div class="lbl">Facturación ${RUBRO[r==='pel'?'peluqueria':r==='pro'?'producto':'maquillaje'].lbl}</div><div class="val">${money(d.fact)}</div></div><div class="tile"><div class="lbl">Ganancia</div><div class="val">${money(d.gan)}</div></div></div>${lista}`;
-  }
+/* ============ MODAL VISITA ============ */
+function abrirModalVisita(clientaId,rubro){
+  rubroCargando={clientaId,rubro};
+  const r=RUBRO[rubro];
+  document.getElementById('mv-titulo').textContent=r.ic+' Cargar '+r.lbl.toLowerCase();
+  const c=clientasDB.find(x=>x.id===clientaId);
+  document.getElementById('mv-sub').textContent=c?('Para '+c.nombre):'';
+  document.getElementById('mv-servicio').value='';
+  document.getElementById('mv-detalle').value='';
+  document.getElementById('mv-monto').value='';
+  document.getElementById('mv-fecha').value=hoyISO();
+  document.getElementById('mv-cobro').value='efectivo';
+  abrirModal('modal-visita');
 }
-function rubroRow(r,lbl,color){const d=caja[r];return `<div class="row"><div class="info"><div class="nm">${lbl}</div><div class="meta">Ganancia ${money(d.gan)}</div></div><div class="rt"><div class="amt">${money(d.fact)}</div><div class="tag">facturado</div></div></div>`;}
-function segGasto(btn,tipo){
-  document.querySelectorAll('.seg button').forEach(b=>b.classList.remove('on'));btn.classList.add('on');
-  const list=gastos[tipo];const total=list.reduce((a,g)=>a+g.m,0);
-  document.getElementById('gastos-cont').innerHTML=list.map(g=>`<div class="row"><div class="info"><div class="nm">${g.n}</div><div class="meta">${g.f}</div></div><div class="rt"><div class="amt">${money(g.m)}</div></div></div>`).join('')+`<div class="row"><div class="info"><div class="nm" style="color:var(--dorado)">Total ${tipo}</div></div><div class="rt"><div class="amt" style="color:var(--dorado)">${money(total)}</div></div></div>`;
+async function guardarVisita(){
+  if(!rubroCargando)return;
+  const servicio=document.getElementById('mv-servicio').value.trim();
+  const monto=parseFloat(document.getElementById('mv-monto').value);
+  if(!servicio){toast('Poné qué se hizo o vendió');return;}
+  if(isNaN(monto)||monto<0){toast('Poné un monto válido');return;}
+  const btn=document.getElementById('mv-save');btn.disabled=true;btn.textContent='Guardando...';
+  const {error}=await sb.from('visitas').insert({
+    clienta_id:rubroCargando.clientaId, rubro:rubroCargando.rubro,
+    servicio, detalle:document.getElementById('mv-detalle').value.trim()||null,
+    monto, fecha:document.getElementById('mv-fecha').value||hoyISO(),
+    forma_cobro:document.getElementById('mv-cobro').value
+  });
+  btn.disabled=false;btn.textContent='Guardar';
+  if(error){toast('Error: '+error.message);return;}
+  cerrarModal('modal-visita');toast('Cargado ✅');
+  const id=rubroCargando.clientaId;
+  await cargarClientas();
+  verFicha(id);
 }
 
-/* ============ MÉTRICAS ============ */
+/* ============ MODALES (util) ============ */
+function abrirModal(id){document.getElementById(id).classList.add('on');}
+function cerrarModal(id){document.getElementById(id).classList.remove('on');}
+document.querySelectorAll('.modal-bg').forEach(bg=>bg.addEventListener('click',e=>{if(e.target===bg)bg.classList.remove('on');}));
+
+/* enter para login */
+document.getElementById('log-pass').addEventListener('keydown',e=>{if(e.key==='Enter')hacerLogin();});
+
+/* ============================================================
+   ZONA DEMO (Inicio/Turnos/Caja/Métricas con datos de ejemplo)
+   ============================================================ */
+const turnosDemo = [
+  {dia:'Ejemplo · Hoy', items:[{h:'16:00', n:'Ejemplo clienta', t:'peluqueria', s:'Nutrición + peinado', sena:8000}]},
+  {dia:'Ejemplo · Mañana', items:[{h:'09:00', n:'Ejemplo clienta', t:'maquillaje', s:'Prueba de novia', sena:15000}]},
+];
+const caja={pel:{fact:698000,gan:472000},pro:{fact:144000,gan:54000},maq:{fact:173000,gan:155000}};
+const cajaTotal={fact:1015000,gan:681000,efectivo:602000,transf:413000};
+const serviciosPel=[{n:'Corte',p:8000},{n:'Color / tintura',p:25000},{n:'Mechas / Balayage',p:55000},{n:'Alisado',p:45000},{n:'Plastificado',p:30000},{n:'Nutrición',p:18000},{n:'Peinado',p:12000}];
+const productos=[{n:'Shampoo línea',costo:5500,venta:9000},{n:'Máscara de tratamiento',costo:9000,venta:15000},{n:'Serum de puntas',costo:7000,venta:12000}];
+const serviciosMaq=[{n:'Maquillaje social / día',p:18000},{n:'Maquillaje 15 años',p:35000},{n:'Prueba de novia',p:25000},{n:'Maquillaje de novia',p:75000}];
+const facturacion={2026:{fact:[420,510,485,560,530,610,845,1015,0,0,0,0],gan:[300,360,340,395,372,430,560,681,0,0,0,0]},2025:{fact:[280,310,295,340,360,390,420,455,470,500,540,610],gan:[195,215,205,238,250,270,290,315,325,345,372,420]}};
+const meses=['E','F','M','A','M','J','J','A','S','O','N','D'];
+const topMesDemo=[{n:'Ejemplo A',v:110000},{n:'Ejemplo B',v:58000},{n:'Ejemplo C',v:55000}];
+
+function initDemo(){renderTurnos();selRubro(document.querySelector('.tabs button'),'todo');renderChart();renderTop();}
+function renderTurnos(){document.getElementById('turnos-cont').innerHTML=turnosDemo.map(d=>`<div class="block-title">${d.dia}</div><div class="card">${d.items.map(t=>{const r=RUBRO[t.t];return `<div class="row"><div class="avatar" style="background:${t.t==='maquillaje'?'var(--maqui-suave)':'var(--dorado-claro)'}">${t.h}</div><div class="info"><div class="nm">${t.n}</div><div class="meta"><span class="chip ${r.chip}">${r.ic} ${r.lbl}</span> ${t.s}</div></div><div class="rt">${t.sena?`<span class="chip pago">Seña ${money(t.sena)}</span>`:''}</div></div>`;}).join('')}</div>`).join('');}
+function selRubro(btn,r){document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('on'));btn.classList.add('on');const c=document.getElementById('caja-cont');
+  if(r==='todo'){c.innerHTML=`<div class="tiles"><div class="tile dor"><div class="lbl">Facturación total</div><div class="val">${money(cajaTotal.fact)}</div></div><div class="tile rosa"><div class="lbl">Ganancia total</div><div class="val">${money(cajaTotal.gan)}</div></div></div><div class="tiles"><div class="tile"><div class="lbl">Efectivo</div><div class="val" style="font-size:19px">${money(cajaTotal.efectivo)}</div></div><div class="tile"><div class="lbl">Transferencia</div><div class="val" style="font-size:19px">${money(cajaTotal.transf)}</div></div></div><div class="block-title">Desglose por rubro</div><div class="card">${rubroRow('pel','💇 Peluquería')}${rubroRow('pro','🛍️ Productos')}${rubroRow('maq','💄 Maquillaje')}</div>`;}
+  else{const d=caja[r];const dc=r==='pel'?'dor':r==='pro'?'rosa':'maq';let lista='';
+    if(r==='pel')lista=`<div class="block-title">Servicios y precios</div><div class="card">${serviciosPel.map(s=>`<div class="price-row"><span>${s.n}</span><span class="p">${money(s.p)}</span></div>`).join('')}</div>`;
+    else if(r==='pro')lista=`<div class="block-title">Productos</div><div class="card">${productos.map(s=>`<div class="price-row"><span>${s.n}<small>Costo ${money(s.costo)} · Ganás ${money(s.venta-s.costo)}</small></span><span class="p">${money(s.venta)}</span></div>`).join('')}</div>`;
+    else lista=`<div class="block-title">Tipos de maquillaje</div><div class="card">${serviciosMaq.map(s=>`<div class="price-row"><span>${s.n}</span><span class="p">${money(s.p)}</span></div>`).join('')}</div>`;
+    c.innerHTML=`<div class="tiles"><div class="tile ${dc}"><div class="lbl">Facturación</div><div class="val">${money(d.fact)}</div></div><div class="tile"><div class="lbl">Ganancia</div><div class="val">${money(d.gan)}</div></div></div>${lista}`;}
+}
+function rubroRow(r,lbl){const d=caja[r];return `<div class="row"><div class="info"><div class="nm">${lbl}</div><div class="meta">Ganancia ${money(d.gan)}</div></div><div class="rt"><div class="amt">${money(d.fact)}</div><div class="tag">facturado</div></div></div>`;}
 let yearActual=2026;
 function selYear(btn,y){document.querySelectorAll('.year-sel button').forEach(b=>b.classList.remove('on'));btn.classList.add('on');yearActual=y;renderChart();}
-function renderChart(){
-  const d=facturacion[yearActual];const max=Math.max(...d.fact)||1;const W=340,H=170,pad=22,bw=W/12;let bars='';
-  for(let i=0;i<12;i++){const fh=(d.fact[i]/max)*(H-pad-20);const gh=(d.gan[i]/max)*(H-pad-20);const x=i*bw+6;
-    bars+=`<rect x="${x}" y="${H-pad-fh}" width="${bw/2-3}" height="${fh}" rx="3" fill="var(--dorado)" opacity="${d.fact[i]?1:.15}"/>`;
-    bars+=`<rect x="${x+bw/2-2}" y="${H-pad-gh}" width="${bw/2-3}" height="${gh}" rx="3" fill="var(--rosa)" opacity="${d.gan[i]?1:.15}"/>`;
-    bars+=`<text x="${x+bw/2-2}" y="${H-6}" font-size="10" fill="var(--texto-suave)" text-anchor="middle" font-family="Jost">${meses[i]}</text>`;}
-  document.getElementById('chart').innerHTML=`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${bars}</svg>`;
-}
-function renderTop(){const s=[...topMes].sort((a,b)=>b.v-a.v);document.getElementById('top-cont').innerHTML=s.map((t,i)=>`<div class="row"><div class="avatar" style="background:${i===0?'var(--dorado-claro)':'var(--crema-osc)'}">${i+1}</div><div class="info"><div class="nm">${t.n}</div></div><div class="rt"><div class="amt">${money(t.v)}</div></div></div>`).join('');}
-function renderEnfriadas(){const enf=clientas.filter(c=>c.enfriada);document.getElementById('enfriadas-cont').innerHTML=enf.map(c=>`<div class="row" onclick="verFicha(${c.id})"><div class="avatar">${initial(c.nombre)}</div><div class="info"><div class="nm">${c.nombre}</div><div class="meta">Ritmo ${c.freq} · atrasada</div></div><div class="rt"><span class="sem ${c.enfriada}"></span></div></div>`).join('')+'<div style="font-size:11px;color:var(--texto-suave);padding-top:10px;text-align:center">🟢 al día · 🟡 se pasó un poco · 🔴 se pasó bastante</div>';}
+function renderChart(){const d=facturacion[yearActual];const max=Math.max(...d.fact)||1;const W=340,H=170,pad=22,bw=W/12;let bars='';for(let i=0;i<12;i++){const fh=(d.fact[i]/max)*(H-pad-20);const gh=(d.gan[i]/max)*(H-pad-20);const x=i*bw+6;bars+=`<rect x="${x}" y="${H-pad-fh}" width="${bw/2-3}" height="${fh}" rx="3" fill="var(--dorado)" opacity="${d.fact[i]?1:.15}"/>`;bars+=`<rect x="${x+bw/2-2}" y="${H-pad-gh}" width="${bw/2-3}" height="${gh}" rx="3" fill="var(--rosa)" opacity="${d.gan[i]?1:.15}"/>`;bars+=`<text x="${x+bw/2-2}" y="${H-6}" font-size="10" fill="var(--texto-suave)" text-anchor="middle" font-family="Jost">${meses[i]}</text>`;}document.getElementById('chart').innerHTML=`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${bars}</svg>`;}
+function renderTop(){document.getElementById('top-cont').innerHTML=topMesDemo.map((t,i)=>`<div class="row"><div class="avatar" style="background:${i===0?'var(--dorado-claro)':'var(--crema-osc)'}">${i+1}</div><div class="info"><div class="nm">${t.n}</div></div><div class="rt"><div class="amt">${money(t.v)}</div></div></div>`).join('');}
 
-/* ============ INIT ============ */
-renderClientas(clientas);renderTurnos();selRubro(document.querySelector('.tabs button'),'todo');renderChart();renderTop();renderEnfriadas();
+/* ============ ARRANQUE ============ */
+initAuth();
 </script>
 </body>
 </html>
