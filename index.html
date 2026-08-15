@@ -71,7 +71,7 @@
 
   .chip{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:500;padding:3px 9px;border-radius:20px;background:var(--crema-osc);color:var(--marron-osc);}
   .chip.pago{background:var(--dorado-claro);}
-  .chip.pel{background:var(--dorado-claro);} .chip.pro{background:var(--rosa-suave);} .chip.maq{background:var(--maqui-suave);}
+  .chip.pel{background:var(--dorado-claro);} .chip.pro{background:var(--rosa-suave);} .chip.maq{background:var(--maqui-suave);} .chip.cur{background:#DCE8CE;}
   .hair-dot{width:11px;height:11px;border-radius:50%;display:inline-block;border:1.5px solid rgba(255,255,255,0.7);box-shadow:0 0 0 1px rgba(61,43,26,0.12);}
 
   .search{display:flex;align-items:center;gap:9px;background:var(--blanco);border:1px solid rgba(196,150,90,0.25);border-radius:14px;padding:11px 14px;margin-bottom:14px;}
@@ -83,7 +83,8 @@
   .btn:disabled{opacity:.6;cursor:not-allowed;}
   .btn-mini{display:flex;gap:8px;margin-bottom:13px;}
   .btn-mini button{flex:1;font-family:inherit;font-size:11.5px;font-weight:600;padding:11px 6px;border-radius:12px;border:none;cursor:pointer;color:var(--blanco);display:flex;flex-direction:column;align-items:center;gap:3px;line-height:1.1;}
-  .btn-mini .bp{background:var(--dorado);} .btn-mini .bpr{background:var(--rosa);} .btn-mini .bm{background:var(--maqui);}
+  .btn-mini .bp{background:var(--dorado);} .btn-mini .bpr{background:var(--rosa);} .btn-mini .bm{background:var(--maqui);} .btn-mini .bc{background:var(--verde);}
+  .btn-mini.cuatro button{font-size:10.5px;padding:10px 3px;}
   .btn-mini button span{font-size:16px;}
 
   .alert{display:flex;gap:11px;align-items:center;background:linear-gradient(150deg,var(--rosa-suave),var(--blanco));border-radius:16px;padding:13px 15px;margin-bottom:11px;border:1px solid rgba(232,165,165,0.4);}
@@ -254,11 +255,12 @@
     <div id="ficha-cont"></div>
   </div>
 
-  <!-- ================= TURNOS (demo) ================= -->
+  <!-- ================= TURNOS (REAL) ================= -->
   <div class="view" id="v-turnos">
     <div class="eyebrow">Agenda única</div>
-    <div class="h-sec">Turnos <span class="sub">Ejemplo — se conecta en la próxima etapa</span></div>
-    <div id="turnos-cont"></div>
+    <div class="h-sec">Turnos <span class="sub">Hoy y próximos · 💇 y 💄 juntos</span></div>
+    <div id="turnos-cont"><div class="spin"></div></div>
+    <button class="btn" onclick="abrirModalTurno()" style="margin-top:6px">+ Agendar turno</button>
   </div>
 
   <!-- ================= CAJA (demo) ================= -->
@@ -313,7 +315,7 @@
     <label>Notas (opcional)</label>
     <textarea id="mc-notas" placeholder="Ej: alérgica a tal tintura, prefiere turnos de tarde..."></textarea>
     <div class="m-actions">
-      <button class="btn btn-cancel" onclick="cerrarModal('modal-clienta')">Cancelar</button>
+      <button class="btn btn-cancel" onclick="volverATurno=false;cerrarModal('modal-clienta')">Cancelar</button>
       <button class="btn" id="mc-save" onclick="guardarClienta()">Guardar</button>
     </div>
   </div>
@@ -350,6 +352,30 @@
   </div>
 </div>
 
+<!-- ===== MODAL TURNO ===== -->
+<div class="modal-bg" id="modal-turno">
+  <div class="modal">
+    <h3 id="mt-titulo">Agendar turno</h3>
+    <div class="msub">Peluquería o maquillaje · agenda única</div>
+    <label>Clienta *</label>
+    <select id="mt-clienta" onchange="chequearNuevaClienta()"></select>
+    <div class="two">
+      <div><label>Fecha *</label><input id="mt-fecha" type="date"></div>
+      <div><label>Hora</label><input id="mt-hora" type="time"></div>
+    </div>
+    <label>Rubro</label>
+    <select id="mt-rubro"><option value="peluqueria">💇 Peluquería</option><option value="maquillaje">💄 Maquillaje</option></select>
+    <label>¿Qué se va a hacer?</label>
+    <input id="mt-servicio" placeholder="Ej: Color + corte">
+    <label>Seña adelantada (opcional)</label>
+    <input id="mt-sena" type="number" inputmode="numeric" placeholder="0">
+    <div class="m-actions">
+      <button class="btn btn-cancel" onclick="cerrarModal('modal-turno')">Cancelar</button>
+      <button class="btn" id="mt-save" onclick="guardarTurno()">Guardar</button>
+    </div>
+  </div>
+</div>
+
 <!-- ===== MODAL CONFIRMAR ===== -->
 <div class="modal-bg" id="modal-confirm">
   <div class="modal">
@@ -373,14 +399,14 @@ const sb = supabase.createClient(SB_URL, SB_KEY);
 
 /* ============ CONSTANTES ============ */
 const COL = {rubio:'#E8C99A', chocolate:'#5B3A22', fantasia:'#C77B9E', negro:'#2A211A', castano:'#7A5230', castaño:'#7A5230', rojizo:'#B15A3C', platino:'#EDE3D2', colorado:'#B15A3C', rubia:'#E8C99A'};
-const RUBRO = {peluqueria:{ic:'💇',dot:'var(--dorado)',chip:'pel',lbl:'Peluquería'}, producto:{ic:'🛍️',dot:'var(--rosa)',chip:'pro',lbl:'Producto'}, maquillaje:{ic:'💄',dot:'var(--maqui)',chip:'maq',lbl:'Maquillaje'}};
+const RUBRO = {peluqueria:{ic:'💇',dot:'var(--dorado)',chip:'pel',lbl:'Peluquería'}, producto:{ic:'🛍️',dot:'var(--rosa)',chip:'pro',lbl:'Producto'}, maquillaje:{ic:'💄',dot:'var(--maqui)',chip:'maq',lbl:'Maquillaje'}, curso:{ic:'💵',dot:'var(--verde)',chip:'cur',lbl:'Curso'}};
 
 let clientasDB = [];      // clientas reales con sus visitas
 let fichaActualId = null; // clienta abierta en la ficha
 let rubroCargando = null; // rubro del modal de visita
 
 /* ============ HELPERS ============ */
-function go(v){document.querySelectorAll('.view').forEach(el=>el.classList.remove('on'));document.getElementById('v-'+v).classList.add('on');document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on', b.dataset.v===v));window.scrollTo(0,0);}
+function go(v){document.querySelectorAll('.view').forEach(el=>el.classList.remove('on'));document.getElementById('v-'+v).classList.add('on');document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on', b.dataset.v===v));window.scrollTo(0,0);if(v==='turnos')cargarTurnos();}
 function initial(nm){const p=(nm||'?').trim().split(/\s+/);return ((p[0][0]||'?')+(p[1]?p[1][0]:'')).toUpperCase();}
 function money(n){return '$'+Number(n||0).toLocaleString('es-AR');}
 function colorHex(c){if(!c)return 'var(--crema-osc)';return COL[c.toLowerCase().trim()]||'#C9A98A';}
@@ -394,7 +420,7 @@ async function initAuth(){
   if(session){ mostrarApp(); } else { mostrarLogin(); }
 }
 function mostrarLogin(){document.getElementById('login-screen').style.display='flex';document.getElementById('app').style.display='none';}
-function mostrarApp(){document.getElementById('login-screen').style.display='none';document.getElementById('app').style.display='flex';initDemo();cargarClientas();
+function mostrarApp(){document.getElementById('login-screen').style.display='none';document.getElementById('app').style.display='flex';initDemo();cargarClientas();cargarTurnos();
   const hoy=new Date();document.getElementById('hoy-lbl').textContent='Hoy · '+hoy.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'});}
 async function hacerLogin(){
   const email=document.getElementById('log-email').value.trim();
@@ -423,7 +449,7 @@ async function cargarClientas(){
   clientasDB = (cls||[]).map(c=>{
     const propias = visitas.filter(v=>v.clienta_id===c.id);
     const suma = r => propias.filter(v=>v.rubro===r).reduce((a,v)=>a+Number(v.monto||0),0);
-    return {...c, visitas:propias, pel:suma('peluqueria'), pro:suma('producto'), maq:suma('maquillaje')};
+    return {...c, visitas:propias, pel:suma('peluqueria'), pro:suma('producto'), maq:suma('maquillaje'), cur:suma('curso')};
   });
   document.getElementById('ini-total-cl').textContent = clientasDB.length;
   renderClientas(clientasDB);
@@ -435,7 +461,7 @@ function renderClientas(list){
     <div class="row" onclick="verFicha(${c.id})">
       <div class="avatar">${initial(c.nombre)}</div>
       <div class="info"><div class="nm">${c.nombre}</div><div class="meta"><span class="hair-dot" style="background:${colorHex(c.color_pelo)}"></span> ${c.color_pelo||'sin color'} · ${c.visitas.length} visita${c.visitas.length!==1?'s':''}</div></div>
-      <div class="rt"><div class="tag">${money(c.pel+c.pro+c.maq)}</div></div>
+      <div class="rt"><div class="tag">${money(c.pel+c.pro+c.maq+c.cur)}</div></div>
     </div>`).join('')+'</div>';
 }
 function filtrarClientas(q){q=q.toLowerCase();renderClientas(clientasDB.filter(c=>(c.nombre||'').toLowerCase().includes(q)));}
@@ -452,12 +478,14 @@ function verFicha(id){
         <div class="fr"><div class="n">${money(c.pel)}</div><div class="l">💇 PELU</div></div>
         <div class="fr"><div class="n">${money(c.pro)}</div><div class="l">🛍️ PROD</div></div>
         <div class="fr"><div class="n">${money(c.maq)}</div><div class="l">💄 MAQUI</div></div>
+        ${c.cur>0?`<div class="fr"><div class="n">${money(c.cur)}</div><div class="l">💵 CURSO</div></div>`:''}
       </div>
     </div>
-    <div class="btn-mini">
+    <div class="btn-mini cuatro">
       <button class="bp" onclick="abrirModalVisita(${c.id},'peluqueria')"><span>💇</span>Peluquería</button>
       <button class="bpr" onclick="abrirModalVisita(${c.id},'producto')"><span>🛍️</span>Producto</button>
       <button class="bm" onclick="abrirModalVisita(${c.id},'maquillaje')"><span>💄</span>Maquillaje</button>
+      <button class="bc" onclick="abrirModalVisita(${c.id},'curso')"><span>💵</span>Curso</button>
     </div>
     <div class="ficha-actions">
       <button onclick="editarClienta(${c.id})">✏️ Editar ficha</button>
@@ -492,14 +520,15 @@ async function guardarClienta(){
   if(!nombre){toast('Poné al menos el nombre');return;}
   const btn=document.getElementById('mc-save');btn.disabled=true;btn.textContent='Guardando...';
   const datos={nombre, color_pelo:document.getElementById('mc-color').value.trim()||null, notas:document.getElementById('mc-notas').value.trim()||null};
-  let error;
+  let error, nuevoId=null;
   if(editandoClientaId){ ({error}=await sb.from('clientas').update(datos).eq('id',editandoClientaId)); }
-  else { ({error}=await sb.from('clientas').insert(datos)); }
+  else { const res=await sb.from('clientas').insert(datos).select().single(); error=res.error; nuevoId=res.data?res.data.id:null; }
   btn.disabled=false;btn.textContent='Guardar';
   if(error){toast('Error: '+error.message);return;}
   const idEd=editandoClientaId;
   cerrarModal('modal-clienta');toast(editandoClientaId?'Ficha actualizada ✨':'Clienta guardada ✨');
   await cargarClientas();
+  if(volverATurno && nuevoId){ volverATurno=false; poblarSelectClientas(document.getElementById('mt-clienta'), String(nuevoId)); abrirModal('modal-turno'); return; }
   if(idEd) verFicha(idEd);
 }
 function borrarClienta(id){
@@ -599,12 +628,136 @@ document.querySelectorAll('.modal-bg').forEach(bg=>bg.addEventListener('click',e
 document.getElementById('log-pass').addEventListener('keydown',e=>{if(e.key==='Enter')hacerLogin();});
 
 /* ============================================================
-   ZONA DEMO (Inicio/Turnos/Caja/Métricas con datos de ejemplo)
+   TURNOS (REAL)
    ============================================================ */
-const turnosDemo = [
-  {dia:'Ejemplo · Hoy', items:[{h:'16:00', n:'Ejemplo clienta', t:'peluqueria', s:'Nutrición + peinado', sena:8000}]},
-  {dia:'Ejemplo · Mañana', items:[{h:'09:00', n:'Ejemplo clienta', t:'maquillaje', s:'Prueba de novia', sena:15000}]},
-];
+let turnosDB=[];
+let editandoTurnoId=null;
+
+async function cargarTurnos(){
+  const cont=document.getElementById('turnos-cont');
+  if(!turnosDB.length) cont.innerHTML='<div class="spin"></div>';
+  const hoy=hoyISO();
+  const {data,error}=await sb.from('turnos').select('*, clientas(nombre)').gte('fecha',hoy).neq('estado','cancelado').order('fecha').order('hora');
+  if(error){cont.innerHTML='<div class="card"><div class="empty">Error al cargar turnos.<br>'+error.message+'</div></div>';return;}
+  turnosDB=data||[];
+  renderTurnos();
+}
+function renderTurnos(){
+  const cont=document.getElementById('turnos-cont');
+  if(!turnosDB.length){cont.innerHTML='<div class="card"><div class="empty">No hay turnos próximos.<br>Tocá <b>+ Agendar turno</b> para cargar uno.</div></div>';return;}
+  // agrupar por fecha
+  const grupos={};
+  turnosDB.forEach(t=>{(grupos[t.fecha]=grupos[t.fecha]||[]).push(t);});
+  const hoy=hoyISO();
+  cont.innerHTML=Object.keys(grupos).sort().map(fecha=>{
+    const et=fecha===hoy?'Hoy · ':'';
+    return `<div class="block-title">${et}${fechaLinda(fecha)}</div><div class="card">`+
+      grupos[fecha].map(t=>{
+        const r=RUBRO[t.rubro]||RUBRO.peluqueria;
+        const nombre=t.clientas?t.clientas.nombre:'(clienta borrada)';
+        const cumplido=t.estado==='cumplido';
+        return `<div class="row" style="${cumplido?'opacity:.55':''}">
+          <div class="avatar" style="background:${t.rubro==='maquillaje'?'var(--maqui-suave)':'var(--dorado-claro)'}">${(t.hora||'').slice(0,5)||'—'}</div>
+          <div class="info"><div class="nm">${nombre} ${cumplido?'✓':''}</div><div class="meta"><span class="chip ${r.chip}">${r.ic} ${r.lbl}</span> ${t.servicio||''}</div>
+            ${t.sena>0?`<div class="meta" style="color:var(--dorado);font-weight:600;margin-top:3px">Seña ${money(t.sena)}</div>`:''}
+            <div class="tl-actions">
+              ${!cumplido?`<button class="mini-act" onclick="turnoCumplido(${t.id})">✓ Cumplido</button>`:''}
+              <button class="mini-act" onclick="editarTurno(${t.id})">✏️</button>
+              <button class="mini-act del" onclick="borrarTurno(${t.id})">🗑️</button>
+            </div>
+          </div>
+        </div>`;
+      }).join('')+'</div>';
+  }).join('');
+}
+
+function poblarSelectClientas(sel, seleccionar){
+  const opts=['<option value="">— Elegí una clienta —</option>']
+    .concat(clientasDB.map(c=>`<option value="${c.id}">${c.nombre}</option>`))
+    .concat(['<option value="__nueva__">➕ Cargar nueva clienta</option>']);
+  sel.innerHTML=opts.join('');
+  if(seleccionar) sel.value=seleccionar;
+}
+let volverATurno=false;
+function chequearNuevaClienta(){
+  const sel=document.getElementById('mt-clienta');
+  if(sel.value==='__nueva__'){
+    volverATurno=true;
+    cerrarModal('modal-turno');
+    abrirModalClienta();
+  }
+}
+
+function abrirModalTurno(){
+  editandoTurnoId=null;
+  document.getElementById('mt-titulo').textContent='Agendar turno';
+  poblarSelectClientas(document.getElementById('mt-clienta'),'');
+  document.getElementById('mt-fecha').value=hoyISO();
+  document.getElementById('mt-hora').value='';
+  document.getElementById('mt-rubro').value='peluqueria';
+  document.getElementById('mt-servicio').value='';
+  document.getElementById('mt-sena').value='';
+  abrirModal('modal-turno');
+}
+function editarTurno(id){
+  const t=turnosDB.find(x=>x.id===id); if(!t)return;
+  editandoTurnoId=id;
+  document.getElementById('mt-titulo').textContent='Editar turno';
+  poblarSelectClientas(document.getElementById('mt-clienta'), t.clienta_id?String(t.clienta_id):'');
+  document.getElementById('mt-fecha').value=t.fecha||hoyISO();
+  document.getElementById('mt-hora').value=t.hora?t.hora.slice(0,5):'';
+  document.getElementById('mt-rubro').value=t.rubro||'peluqueria';
+  document.getElementById('mt-servicio').value=t.servicio||'';
+  document.getElementById('mt-sena').value=t.sena||'';
+  abrirModal('modal-turno');
+}
+async function guardarTurno(){
+  const clientaId=document.getElementById('mt-clienta').value;
+  const fecha=document.getElementById('mt-fecha').value;
+  if(!clientaId||clientaId==='__nueva__'){toast('Elegí una clienta');return;}
+  if(!fecha){toast('Poné la fecha');return;}
+  const btn=document.getElementById('mt-save');btn.disabled=true;btn.textContent='Guardando...';
+  const datos={
+    clienta_id:parseInt(clientaId), fecha,
+    hora:document.getElementById('mt-hora').value||null,
+    rubro:document.getElementById('mt-rubro').value,
+    servicio:document.getElementById('mt-servicio').value.trim()||null,
+    sena:parseFloat(document.getElementById('mt-sena').value)||0
+  };
+  let error;
+  if(editandoTurnoId){ ({error}=await sb.from('turnos').update(datos).eq('id',editandoTurnoId)); }
+  else { ({error}=await sb.from('turnos').insert(datos)); }
+  btn.disabled=false;btn.textContent='Guardar';
+  if(error){toast('Error: '+error.message);return;}
+  cerrarModal('modal-turno');toast(editandoTurnoId?'Turno actualizado ✨':'Turno agendado 📅');
+  await cargarTurnos();
+}
+function borrarTurno(id){
+  const t=turnosDB.find(x=>x.id===id); if(!t)return;
+  const nombre=t.clientas?t.clientas.nombre:'';
+  confirmar('¿Borrar este turno?',nombre+' · '+fechaLinda(t.fecha)+(t.hora?' '+t.hora.slice(0,5):''),async()=>{
+    const {error}=await sb.from('turnos').delete().eq('id',id);
+    if(error){toast('Error: '+error.message);return;}
+    cerrarModal('modal-confirm');toast('Turno borrado');
+    await cargarTurnos();
+  });
+}
+async function turnoCumplido(id){
+  const t=turnosDB.find(x=>x.id===id); if(!t)return;
+  // marcar cumplido
+  await sb.from('turnos').update({estado:'cumplido'}).eq('id',id);
+  await cargarTurnos();
+  // ofrecer registrar la visita en la ficha
+  if(t.clienta_id){
+    confirmar('¿Registrar el servicio en la ficha?', (t.clientas?t.clientas.nombre:'')+(t.sena>0?' · tenía seña de '+money(t.sena):''), ()=>{
+      cerrarModal('modal-confirm');
+      abrirModalVisita(t.clienta_id, t.rubro);
+      document.getElementById('mv-servicio').value=t.servicio||'';
+      if(t.sena>0) document.getElementById('mv-detalle').value='Seña adelantada: '+money(t.sena)+' (descontar del total al cobrar)';
+    });
+  } else { toast('Turno marcado como cumplido ✓'); }
+}
+
 const caja={pel:{fact:698000,gan:472000},pro:{fact:144000,gan:54000},maq:{fact:173000,gan:155000}};
 const cajaTotal={fact:1015000,gan:681000,efectivo:602000,transf:413000};
 const serviciosPel=[{n:'Corte',p:8000},{n:'Color / tintura',p:25000},{n:'Mechas / Balayage',p:55000},{n:'Alisado',p:45000},{n:'Plastificado',p:30000},{n:'Nutrición',p:18000},{n:'Peinado',p:12000}];
@@ -614,8 +767,7 @@ const facturacion={2026:{fact:[420,510,485,560,530,610,845,1015,0,0,0,0],gan:[30
 const meses=['E','F','M','A','M','J','J','A','S','O','N','D'];
 const topMesDemo=[{n:'Ejemplo A',v:110000},{n:'Ejemplo B',v:58000},{n:'Ejemplo C',v:55000}];
 
-function initDemo(){renderTurnos();selRubro(document.querySelector('.tabs button'),'todo');renderChart();renderTop();}
-function renderTurnos(){document.getElementById('turnos-cont').innerHTML=turnosDemo.map(d=>`<div class="block-title">${d.dia}</div><div class="card">${d.items.map(t=>{const r=RUBRO[t.t];return `<div class="row"><div class="avatar" style="background:${t.t==='maquillaje'?'var(--maqui-suave)':'var(--dorado-claro)'}">${t.h}</div><div class="info"><div class="nm">${t.n}</div><div class="meta"><span class="chip ${r.chip}">${r.ic} ${r.lbl}</span> ${t.s}</div></div><div class="rt">${t.sena?`<span class="chip pago">Seña ${money(t.sena)}</span>`:''}</div></div>`;}).join('')}</div>`).join('');}
+function initDemo(){selRubro(document.querySelector('.tabs button'),'todo');renderChart();renderTop();}
 function selRubro(btn,r){document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('on'));btn.classList.add('on');const c=document.getElementById('caja-cont');
   if(r==='todo'){c.innerHTML=`<div class="tiles"><div class="tile dor"><div class="lbl">Facturación total</div><div class="val">${money(cajaTotal.fact)}</div></div><div class="tile rosa"><div class="lbl">Ganancia total</div><div class="val">${money(cajaTotal.gan)}</div></div></div><div class="tiles"><div class="tile"><div class="lbl">Efectivo</div><div class="val" style="font-size:19px">${money(cajaTotal.efectivo)}</div></div><div class="tile"><div class="lbl">Transferencia</div><div class="val" style="font-size:19px">${money(cajaTotal.transf)}</div></div></div><div class="block-title">Desglose por rubro</div><div class="card">${rubroRow('pel','💇 Peluquería')}${rubroRow('pro','🛍️ Productos')}${rubroRow('maq','💄 Maquillaje')}</div>`;}
   else{const d=caja[r];const dc=r==='pel'?'dor':r==='pro'?'rosa':'maq';let lista='';
