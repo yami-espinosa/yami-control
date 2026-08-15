@@ -269,21 +269,24 @@
     <div id="caja-cont"><div class="spin"></div></div>
   </div>
 
-  <!-- ================= MÉTRICAS (demo) ================= -->
+  <!-- ================= MÉTRICAS (REAL) ================= -->
   <div class="view" id="v-metricas">
     <div class="eyebrow">Seguimiento</div>
-    <div class="h-sec">Métricas <span class="sub">Ejemplo — se conecta en la próxima etapa</span></div>
-    <div class="block-title">Evolución del año</div>
-    <div class="year-sel">
-      <button class="on" onclick="selYear(this,2026)">2026</button>
-      <button onclick="selYear(this,2025)">2025</button>
-    </div>
+    <div class="h-sec">Métricas</div>
+    <div class="block-title">Evolución del año <span id="year-actual" style="color:var(--dorado)"></span></div>
+    <div class="year-sel" id="year-sel"></div>
     <div class="card">
-      <div class="chart-wrap"><div id="chart"></div></div>
-      <div class="legend"><span><i style="background:var(--dorado)"></i>Facturación</span><span><i style="background:var(--rosa)"></i>Ganancia</span></div>
+      <div class="chart-wrap"><div id="chart"><div class="spin"></div></div></div>
+      <div class="legend"><span><i style="background:var(--dorado)"></i>Facturado</span><span><i style="background:var(--rojo)"></i>Gastos</span><span><i style="background:var(--verde)"></i>Neto</span></div>
     </div>
-    <div class="block-title">Top clientas del mes</div>
+    <div class="block-title">Top clientas</div>
+    <div class="seg" id="top-seg">
+      <button class="on" onclick="setTop(this,'mes')">Del mes</button>
+      <button onclick="setTop(this,'hist')">Histórico</button>
+    </div>
     <div class="card" id="top-cont"></div>
+    <div class="block-title">Clientas para reactivar <a>se enfriaron</a></div>
+    <div class="card" id="enfriadas-cont"></div>
   </div>
 
   <div class="nav">
@@ -444,7 +447,7 @@ let fichaActualId = null; // clienta abierta en la ficha
 let rubroCargando = null; // rubro del modal de visita
 
 /* ============ HELPERS ============ */
-function go(v){document.querySelectorAll('.view').forEach(el=>el.classList.remove('on'));document.getElementById('v-'+v).classList.add('on');document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on', b.dataset.v===v));window.scrollTo(0,0);if(v==='turnos')cargarTurnos();if(v==='caja'||v==='inicio')cargarCaja();}
+function go(v){document.querySelectorAll('.view').forEach(el=>el.classList.remove('on'));document.getElementById('v-'+v).classList.add('on');document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on', b.dataset.v===v));window.scrollTo(0,0);if(v==='turnos')cargarTurnos();if(v==='caja'||v==='inicio')cargarCaja();if(v==='metricas')cargarMetricas();}
 function initial(nm){const p=(nm||'?').trim().split(/\s+/);return ((p[0][0]||'?')+(p[1]?p[1][0]:'')).toUpperCase();}
 function money(n){return '$'+Number(n||0).toLocaleString('es-AR');}
 function colorHex(c){if(!c)return 'var(--crema-osc)';return COL[c.toLowerCase().trim()]||'#C9A98A';}
@@ -797,11 +800,9 @@ async function turnoCumplido(id){
   } else { toast('Turno marcado como cumplido ✓'); }
 }
 
-const facturacion={2026:{fact:[420,510,485,560,530,610,845,1015,0,0,0,0],gan:[300,360,340,395,372,430,560,681,0,0,0,0]},2025:{fact:[280,310,295,340,360,390,420,455,470,500,540,610],gan:[195,215,205,238,250,270,290,315,325,345,372,420]}};
 const meses=['E','F','M','A','M','J','J','A','S','O','N','D'];
-const topMesDemo=[{n:'Ejemplo A',v:110000},{n:'Ejemplo B',v:58000},{n:'Ejemplo C',v:55000}];
 
-function initDemo(){renderChart();renderTop();}
+function initDemo(){}
 
 /* ============================================================
    CAJA + INICIO (REAL) · mes actual
@@ -837,8 +838,8 @@ function renderCaja(){
   const m=cajaMes;if(!m)return;
   const R=[['peluqueria','💇 Peluquería'],['producto','🛍️ Productos'],['maquillaje','💄 Maquillaje'],['curso','💵 Curso'],['olla','🍳 Ollas ESSEN']];
   document.getElementById('caja-cont').innerHTML=`
-    <div class="tiles"><div class="tile dor"><div class="lbl">Facturado</div><div class="val">${money(m.facturado)}</div></div><div class="tile rosa"><div class="lbl">Ganancia</div><div class="val">${money(m.ganancia)}</div></div></div>
-    <div class="tiles"><div class="tile maq" style="grid-column:1/-1"><div class="lbl">Neto · lo que te queda después de gastos</div><div class="val">${money(m.neto)}</div></div></div>
+    <div class="tiles"><div class="tile dor"><div class="lbl">Facturado</div><div class="val">${money(m.facturado)}</div></div><div class="tile"><div class="lbl">Gastos del mes</div><div class="val" style="color:var(--rojo)">${money(m.gastoTotal)}</div></div></div>
+    <div class="tiles"><div class="tile maq" style="grid-column:1/-1"><div class="lbl">Neto · lo que te queda</div><div class="val">${money(m.neto)}</div></div></div>
     <button class="btn" onclick="abrirModalVenta()" style="margin:2px 0 4px">+ Cargar venta (producto / olla)</button>
     <div class="block-title">Ingresos por rubro</div>
     <div class="card">${R.map(([k,lbl])=>`<div class="row"><div class="info"><div class="nm">${lbl}</div></div><div class="rt"><div class="amt">${money(m.rub[k])}</div></div></div>`).join('')}</div>
@@ -906,10 +907,80 @@ function borrarGasto(id){
     cerrarModal('modal-confirm');toast('Gasto borrado');cajaMes=null;await cargarCaja();
   });
 }
-let yearActual=2026;
-function selYear(btn,y){document.querySelectorAll('.year-sel button').forEach(b=>b.classList.remove('on'));btn.classList.add('on');yearActual=y;renderChart();}
-function renderChart(){const d=facturacion[yearActual];const max=Math.max(...d.fact)||1;const W=340,H=170,pad=22,bw=W/12;let bars='';for(let i=0;i<12;i++){const fh=(d.fact[i]/max)*(H-pad-20);const gh=(d.gan[i]/max)*(H-pad-20);const x=i*bw+6;bars+=`<rect x="${x}" y="${H-pad-fh}" width="${bw/2-3}" height="${fh}" rx="3" fill="var(--dorado)" opacity="${d.fact[i]?1:.15}"/>`;bars+=`<rect x="${x+bw/2-2}" y="${H-pad-gh}" width="${bw/2-3}" height="${gh}" rx="3" fill="var(--rosa)" opacity="${d.gan[i]?1:.15}"/>`;bars+=`<text x="${x+bw/2-2}" y="${H-6}" font-size="10" fill="var(--texto-suave)" text-anchor="middle" font-family="Jost">${meses[i]}</text>`;}document.getElementById('chart').innerHTML=`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${bars}</svg>`;}
-function renderTop(){document.getElementById('top-cont').innerHTML=topMesDemo.map((t,i)=>`<div class="row"><div class="avatar" style="background:${i===0?'var(--dorado-claro)':'var(--crema-osc)'}">${i+1}</div><div class="info"><div class="nm">${t.n}</div></div><div class="rt"><div class="amt">${money(t.v)}</div></div></div>`).join('');}
+let yearActual=new Date().getFullYear();
+let topModo='mes';
+
+async function cargarMetricas(){
+  if(!clientasDB.length) await cargarClientas();
+  // selector de años
+  const ys=document.getElementById('year-sel');
+  const y0=new Date().getFullYear();
+  ys.innerHTML=[y0,y0-1].map(y=>`<button class="${y===yearActual?'on':''}" onclick="selYear(this,${y})">${y}</button>`).join('');
+  document.getElementById('year-actual').textContent='';
+  renderTopClientas();
+  renderEnfriadas();
+  await renderChartAnual();
+}
+
+function visitasMes(c){
+  const {desde,hasta}=rangoMes();
+  return c.visitas.filter(v=>v.fecha>=desde&&v.fecha<=hasta).reduce((a,v)=>a+Number(v.monto||0),0);
+}
+function setTop(btn,modo){document.querySelectorAll('#top-seg button').forEach(b=>b.classList.remove('on'));btn.classList.add('on');topModo=modo;renderTopClientas();}
+function renderTopClientas(){
+  const lista=clientasDB.map(c=>({nombre:c.nombre, val: topModo==='hist' ? (c.pel+c.pro+c.maq+c.cur) : visitasMes(c)}))
+    .filter(x=>x.val>0).sort((a,b)=>b.val-a.val).slice(0,5);
+  const cont=document.getElementById('top-cont');
+  if(!lista.length){cont.innerHTML='<div class="empty">Todavía no hay datos '+(topModo==='mes'?'de este mes':'')+'.</div>';return;}
+  cont.innerHTML=lista.map((t,i)=>`<div class="row"><div class="avatar" style="background:${i===0?'var(--dorado-claro)':'var(--crema-osc)'}">${i+1}</div><div class="info"><div class="nm">${t.nombre}</div></div><div class="rt"><div class="amt">${money(t.val)}</div></div></div>`).join('');
+}
+
+function renderEnfriadas(){
+  const hoy=new Date();
+  const analisis=clientasDB.map(c=>{
+    if(c.visitas.length<4) return null;
+    const fechas=c.visitas.map(v=>new Date(v.fecha)).sort((a,b)=>a-b);
+    // ritmo promedio (días entre visitas)
+    let tot=0;for(let i=1;i<fechas.length;i++){tot+=(fechas[i]-fechas[i-1])/86400000;}
+    const ritmo=tot/(fechas.length-1);
+    const ultima=fechas[fechas.length-1];
+    const diasSin=(hoy-ultima)/86400000;
+    const ratio=diasSin/ritmo;
+    let sem=null;
+    if(ratio>2) sem='r'; else if(ratio>1.3) sem='a';
+    return sem?{nombre:c.nombre, id:c.id, ritmo:Math.round(ritmo), diasSin:Math.round(diasSin), sem, ratio}:null;
+  }).filter(Boolean).sort((a,b)=>b.ratio-a.ratio);
+  const cont=document.getElementById('enfriadas-cont');
+  if(!analisis.length){cont.innerHTML='<div class="empty">Ninguna clienta se enfrió 🎉<br><span style="font-size:11px">(se analizan las que tienen 4+ visitas)</span></div>';return;}
+  cont.innerHTML=analisis.map(c=>`<div class="row" onclick="verFicha(${c.id})"><div class="avatar">${initial(c.nombre)}</div><div class="info"><div class="nm">${c.nombre}</div><div class="meta">Viene cada ~${c.ritmo} días · hace ${c.diasSin} que no viene</div></div><div class="rt"><span class="sem ${c.sem}"></span></div></div>`).join('')
+    +'<div style="font-size:11px;color:var(--texto-suave);padding-top:10px;text-align:center">🟡 se pasó un poco · 🔴 se pasó bastante</div>';
+}
+
+function selYear(btn,y){document.querySelectorAll('#year-sel button').forEach(b=>b.classList.remove('on'));btn.classList.add('on');yearActual=y;renderChartAnual();}
+async function renderChartAnual(){
+  const desde=yearActual+'-01-01', hasta=yearActual+'-12-31';
+  const [rv,rven,rg]=await Promise.all([
+    sb.from('visitas').select('fecha,monto').gte('fecha',desde).lte('fecha',hasta),
+    sb.from('ventas').select('fecha,monto').gte('fecha',desde).lte('fecha',hasta),
+    sb.from('gastos').select('fecha,monto').gte('fecha',desde).lte('fecha',hasta)
+  ]);
+  const fact=Array(12).fill(0), gast=Array(12).fill(0);
+  (rv.data||[]).forEach(v=>{fact[+v.fecha.slice(5,7)-1]+=Number(v.monto||0);});
+  (rven.data||[]).forEach(v=>{fact[+v.fecha.slice(5,7)-1]+=Number(v.monto||0);});
+  (rg.data||[]).forEach(g=>{gast[+g.fecha.slice(5,7)-1]+=Number(g.monto||0);});
+  const neto=fact.map((f,i)=>f-gast[i]);
+  const max=Math.max(...fact,...gast,1);
+  const W=360,H=180,pad=22,bw=W/12;let bars='';
+  for(let i=0;i<12;i++){
+    const x=i*bw+4, w=bw/3-1.5;
+    const bh=v=>Math.max(0,(v/max)*(H-pad-20));
+    bars+=`<rect x="${x}" y="${H-pad-bh(fact[i])}" width="${w}" height="${bh(fact[i])}" rx="2" fill="var(--dorado)" opacity="${fact[i]?1:.12}"/>`;
+    bars+=`<rect x="${x+w+1}" y="${H-pad-bh(gast[i])}" width="${w}" height="${bh(gast[i])}" rx="2" fill="var(--rojo)" opacity="${gast[i]?1:.12}"/>`;
+    bars+=`<rect x="${x+2*w+2}" y="${H-pad-bh(neto[i])}" width="${w}" height="${bh(neto[i])}" rx="2" fill="var(--verde)" opacity="${neto[i]?1:.12}"/>`;
+    bars+=`<text x="${x+bw/2-2}" y="${H-6}" font-size="9" fill="var(--texto-suave)" text-anchor="middle" font-family="Jost">${meses[i]}</text>`;
+  }
+  document.getElementById('chart').innerHTML=`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${bars}</svg>`;
+}
 
 /* ============ ARRANQUE ============ */
 initAuth();
