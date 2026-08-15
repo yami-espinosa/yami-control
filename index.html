@@ -147,6 +147,14 @@
   .price-row .p{font-weight:600;}
   .price-row small{color:var(--texto-suave);font-size:11px;display:block;}
 
+  /* acciones editar/borrar */
+  .tl-actions{display:flex;gap:8px;margin-top:7px;}
+  .mini-act{font-family:inherit;font-size:11px;font-weight:600;padding:5px 12px;border-radius:9px;border:1.5px solid rgba(196,150,90,0.35);background:var(--blanco);color:var(--marron-osc);cursor:pointer;display:inline-flex;align-items:center;gap:4px;}
+  .mini-act.del{border-color:rgba(201,123,107,0.5);color:var(--rojo);}
+  .ficha-actions{display:flex;gap:9px;margin-bottom:14px;}
+  .ficha-actions button{flex:1;font-family:inherit;font-size:12.5px;font-weight:600;padding:10px;border-radius:12px;border:1.5px solid rgba(196,150,90,0.35);background:var(--blanco);color:var(--marron-osc);cursor:pointer;}
+  .ficha-actions button.del{border-color:rgba(201,123,107,0.5);color:var(--rojo);}
+
   /* ===== LOGIN ===== */
   #login-screen{position:fixed;inset:0;z-index:100;background:linear-gradient(165deg,var(--crema) 0%,var(--crema-osc) 100%);display:flex;align-items:center;justify-content:center;padding:24px;}
   .login-box{width:100%;max-width:360px;text-align:center;}
@@ -296,7 +304,7 @@
 <!-- ===== MODAL NUEVA CLIENTA ===== -->
 <div class="modal-bg" id="modal-clienta">
   <div class="modal">
-    <h3>Nueva clienta</h3>
+    <h3 id="mc-titulo">Nueva clienta</h3>
     <div class="msub">Se guarda en el sistema de verdad</div>
     <label>Nombre y apellido *</label>
     <input id="mc-nombre" placeholder="Ej: Sofía Ramírez">
@@ -338,6 +346,18 @@
     <div class="m-actions">
       <button class="btn btn-cancel" onclick="cerrarModal('modal-visita')">Cancelar</button>
       <button class="btn" id="mv-save" onclick="guardarVisita()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL CONFIRMAR ===== -->
+<div class="modal-bg" id="modal-confirm">
+  <div class="modal">
+    <h3 id="cf-titulo">¿Estás segura?</h3>
+    <div class="msub" id="cf-texto"></div>
+    <div class="m-actions">
+      <button class="btn btn-cancel" onclick="cerrarModal('modal-confirm')">No, volver</button>
+      <button class="btn" id="cf-ok" style="background:var(--rojo)">Sí, borrar</button>
     </div>
   </div>
 </div>
@@ -439,30 +459,63 @@ function verFicha(id){
       <button class="bpr" onclick="abrirModalVisita(${c.id},'producto')"><span>🛍️</span>Producto</button>
       <button class="bm" onclick="abrirModalVisita(${c.id},'maquillaje')"><span>💄</span>Maquillaje</button>
     </div>
+    <div class="ficha-actions">
+      <button onclick="editarClienta(${c.id})">✏️ Editar ficha</button>
+      <button class="del" onclick="borrarClienta(${c.id})">🗑️ Borrar ficha</button>
+    </div>
     <div class="block-title" style="margin-top:4px">Historial (${c.visitas.length})</div>
     <div class="card">
-      ${c.visitas.length? '<div class="timeline">'+c.visitas.map(h=>{const r=RUBRO[h.rubro]||RUBRO.peluqueria;return `<div class="tl-item" style="--dot:${r.dot}"><div class="date">${fechaLinda(h.fecha)}<span class="chip ${r.chip}">${r.ic} ${r.lbl}</span></div><div class="svc">${h.servicio||'(sin detalle)'} · ${money(h.monto)}</div>${h.detalle?`<div class="det">${h.detalle}</div>`:''}</div>`;}).join('')+'</div>' : '<div class="empty">Sin visitas todavía. Cargá la primera con los botones de arriba.</div>'}
+      ${c.visitas.length? '<div class="timeline">'+c.visitas.map(h=>{const r=RUBRO[h.rubro]||RUBRO.peluqueria;return `<div class="tl-item" style="--dot:${r.dot}"><div class="date">${fechaLinda(h.fecha)}<span class="chip ${r.chip}">${r.ic} ${r.lbl}</span></div><div class="svc">${h.servicio||'(sin detalle)'} · ${money(h.monto)}</div>${h.detalle?`<div class="det">${h.detalle}</div>`:''}<div class="tl-actions"><button class="mini-act" onclick="editarVisita(${h.id})">✏️ Editar</button><button class="mini-act del" onclick="borrarVisita(${h.id})">🗑️ Borrar</button></div></div>`;}).join('')+'</div>' : '<div class="empty">Sin visitas todavía. Cargá la primera con los botones de arriba.</div>'}
     </div>`;
   go('ficha');
 }
 
 /* ============ MODAL CLIENTA ============ */
-function abrirModalClienta(){document.getElementById('mc-nombre').value='';document.getElementById('mc-color').value='';document.getElementById('mc-notas').value='';abrirModal('modal-clienta');document.getElementById('mc-nombre').focus();}
+let editandoClientaId=null;
+function abrirModalClienta(){
+  editandoClientaId=null;
+  document.getElementById('mc-titulo').textContent='Nueva clienta';
+  document.getElementById('mc-nombre').value='';document.getElementById('mc-color').value='';document.getElementById('mc-notas').value='';
+  abrirModal('modal-clienta');document.getElementById('mc-nombre').focus();
+}
+function editarClienta(id){
+  const c=clientasDB.find(x=>x.id===id); if(!c)return;
+  editandoClientaId=id;
+  document.getElementById('mc-titulo').textContent='Editar ficha';
+  document.getElementById('mc-nombre').value=c.nombre||'';
+  document.getElementById('mc-color').value=c.color_pelo||'';
+  document.getElementById('mc-notas').value=c.notas||'';
+  abrirModal('modal-clienta');
+}
 async function guardarClienta(){
   const nombre=document.getElementById('mc-nombre').value.trim();
   if(!nombre){toast('Poné al menos el nombre');return;}
   const btn=document.getElementById('mc-save');btn.disabled=true;btn.textContent='Guardando...';
-  const {error}=await sb.from('clientas').insert({
-    nombre, color_pelo:document.getElementById('mc-color').value.trim()||null, notas:document.getElementById('mc-notas').value.trim()||null
-  });
+  const datos={nombre, color_pelo:document.getElementById('mc-color').value.trim()||null, notas:document.getElementById('mc-notas').value.trim()||null};
+  let error;
+  if(editandoClientaId){ ({error}=await sb.from('clientas').update(datos).eq('id',editandoClientaId)); }
+  else { ({error}=await sb.from('clientas').insert(datos)); }
   btn.disabled=false;btn.textContent='Guardar';
   if(error){toast('Error: '+error.message);return;}
-  cerrarModal('modal-clienta');toast('Clienta guardada ✨');
+  const idEd=editandoClientaId;
+  cerrarModal('modal-clienta');toast(editandoClientaId?'Ficha actualizada ✨':'Clienta guardada ✨');
   await cargarClientas();
+  if(idEd) verFicha(idEd);
+}
+function borrarClienta(id){
+  const c=clientasDB.find(x=>x.id===id); if(!c)return;
+  confirmar('¿Borrar la ficha de '+c.nombre+'?','Se borra la clienta y TODAS sus visitas ('+c.visitas.length+'). Esto no se puede deshacer.',async()=>{
+    const {error}=await sb.from('clientas').delete().eq('id',id);
+    if(error){toast('Error: '+error.message);return;}
+    cerrarModal('modal-confirm');toast('Ficha borrada');
+    await cargarClientas();go('clientas');
+  });
 }
 
 /* ============ MODAL VISITA ============ */
+let editandoVisitaId=null;
 function abrirModalVisita(clientaId,rubro){
+  editandoVisitaId=null;
   rubroCargando={clientaId,rubro};
   const r=RUBRO[rubro];
   document.getElementById('mv-titulo').textContent=r.ic+' Cargar '+r.lbl.toLowerCase();
@@ -475,6 +528,22 @@ function abrirModalVisita(clientaId,rubro){
   document.getElementById('mv-cobro').value='efectivo';
   abrirModal('modal-visita');
 }
+function editarVisita(visitaId){
+  let visita=null, clienta=null;
+  for(const c of clientasDB){const v=c.visitas.find(x=>x.id===visitaId);if(v){visita=v;clienta=c;break;}}
+  if(!visita)return;
+  editandoVisitaId=visitaId;
+  rubroCargando={clientaId:clienta.id, rubro:visita.rubro};
+  const r=RUBRO[visita.rubro]||RUBRO.peluqueria;
+  document.getElementById('mv-titulo').textContent='✏️ Editar '+r.lbl.toLowerCase();
+  document.getElementById('mv-sub').textContent='De '+clienta.nombre;
+  document.getElementById('mv-servicio').value=visita.servicio||'';
+  document.getElementById('mv-detalle').value=visita.detalle||'';
+  document.getElementById('mv-monto').value=visita.monto||'';
+  document.getElementById('mv-fecha').value=visita.fecha||hoyISO();
+  document.getElementById('mv-cobro').value=visita.forma_cobro||'efectivo';
+  abrirModal('modal-visita');
+}
 async function guardarVisita(){
   if(!rubroCargando)return;
   const servicio=document.getElementById('mv-servicio').value.trim();
@@ -482,18 +551,43 @@ async function guardarVisita(){
   if(!servicio){toast('Poné qué se hizo o vendió');return;}
   if(isNaN(monto)||monto<0){toast('Poné un monto válido');return;}
   const btn=document.getElementById('mv-save');btn.disabled=true;btn.textContent='Guardando...';
-  const {error}=await sb.from('visitas').insert({
+  const datos={
     clienta_id:rubroCargando.clientaId, rubro:rubroCargando.rubro,
     servicio, detalle:document.getElementById('mv-detalle').value.trim()||null,
     monto, fecha:document.getElementById('mv-fecha').value||hoyISO(),
     forma_cobro:document.getElementById('mv-cobro').value
-  });
+  };
+  let error;
+  if(editandoVisitaId){ ({error}=await sb.from('visitas').update(datos).eq('id',editandoVisitaId)); }
+  else { ({error}=await sb.from('visitas').insert(datos)); }
   btn.disabled=false;btn.textContent='Guardar';
   if(error){toast('Error: '+error.message);return;}
-  cerrarModal('modal-visita');toast('Cargado ✅');
+  cerrarModal('modal-visita');toast(editandoVisitaId?'Corregido ✅':'Cargado ✅');
   const id=rubroCargando.clientaId;
   await cargarClientas();
   verFicha(id);
+}
+function borrarVisita(visitaId){
+  let visita=null, clienta=null;
+  for(const c of clientasDB){const v=c.visitas.find(x=>x.id===visitaId);if(v){visita=v;clienta=c;break;}}
+  if(!visita)return;
+  confirmar('¿Borrar esta visita?',(visita.servicio||'')+' · '+money(visita.monto)+' · '+fechaLinda(visita.fecha),async()=>{
+    const {error}=await sb.from('visitas').delete().eq('id',visitaId);
+    if(error){toast('Error: '+error.message);return;}
+    cerrarModal('modal-confirm');toast('Visita borrada');
+    const id=clienta.id;
+    await cargarClientas();verFicha(id);
+  });
+}
+
+/* ============ CONFIRMACIÓN ============ */
+function confirmar(titulo,texto,callback){
+  document.getElementById('cf-titulo').textContent=titulo;
+  document.getElementById('cf-texto').textContent=texto;
+  const ok=document.getElementById('cf-ok');
+  const nuevo=ok.cloneNode(true);ok.parentNode.replaceChild(nuevo,ok); // limpiar listeners viejos
+  nuevo.addEventListener('click',callback);
+  abrirModal('modal-confirm');
 }
 
 /* ============ MODALES (util) ============ */
