@@ -217,22 +217,21 @@
     <button class="logout" onclick="hacerLogout()">Salir</button>
   </div>
 
-  <!-- ================= INICIO (demo) ================= -->
+  <!-- ================= INICIO (REAL) ================= -->
   <div class="view on" id="v-inicio">
     <div class="eyebrow" id="hoy-lbl">Hoy</div>
     <div class="h-sec">Hola, Yami ✨</div>
-    <div class="note">📊 Los números de Inicio, Turnos, Caja y Métricas todavía son de ejemplo. La sección <b>Clientas</b> ya es real: lo que cargues ahí se guarda de verdad. El resto lo conectamos en la próxima etapa.</div>
 
     <div class="tiles">
-      <div class="tile dor"><div class="lbl">Facturación total del mes</div><div class="val">$1.015.000</div><div class="chg up">▲ ejemplo</div></div>
-      <div class="tile rosa"><div class="lbl">Ganancia total del mes</div><div class="val">$681.000</div><div class="chg up">ejemplo</div></div>
+      <div class="tile dor"><div class="lbl">Facturado este mes</div><div class="val" id="ini-fact">—</div></div>
+      <div class="tile rosa"><div class="lbl">Neto (lo que te queda)</div><div class="val" id="ini-neto">—</div></div>
     </div>
-    <div class="block-title">Ganancia por rubro <a onclick="go('caja')">Ver Caja →</a></div>
-    <div class="rubros-mini">
-      <div class="rmini"><div class="rl"><span class="rdot pel"></span>Peluquería</div><div class="rv">$472.000</div></div>
-      <div class="rmini"><div class="rl"><span class="rdot pro"></span>Productos</div><div class="rv">$54.000</div></div>
-      <div class="rmini"><div class="rl"><span class="rdot maq"></span>Maquillaje</div><div class="rv">$155.000</div></div>
-    </div>
+    <div class="block-title">Ingresos por rubro <a onclick="go('caja')">Ver Caja →</a></div>
+    <div class="rubros-mini" id="ini-rubros"></div>
+
+    <div class="block-title">Próximos turnos <a onclick="go('turnos')">Ver agenda →</a></div>
+    <div id="ini-turnos"></div>
+
     <div class="block-title">Clientas <a onclick="go('clientas')">Ver todas →</a></div>
     <div class="card"><div class="row"><div class="info"><div class="nm" id="ini-total-cl">—</div><div class="meta">clientas cargadas en el sistema</div></div><div class="rt"><span style="font-size:22px">💇‍♀️</span></div></div></div>
   </div>
@@ -263,17 +262,11 @@
     <button class="btn" onclick="abrirModalTurno()" style="margin-top:6px">+ Agendar turno</button>
   </div>
 
-  <!-- ================= CAJA (demo) ================= -->
+  <!-- ================= CAJA (REAL) ================= -->
   <div class="view" id="v-caja">
-    <div class="eyebrow">Ejemplo</div>
-    <div class="h-sec">Caja del mes</div>
-    <div class="tabs">
-      <button class="on" onclick="selRubro(this,'todo')">Todo</button>
-      <button onclick="selRubro(this,'pel')">Peluquería</button>
-      <button onclick="selRubro(this,'pro')">Productos</button>
-      <button onclick="selRubro(this,'maq')">Maquillaje</button>
-    </div>
-    <div id="caja-cont"></div>
+    <div class="eyebrow" id="caja-mes-lbl">Este mes</div>
+    <div class="h-sec">Caja</div>
+    <div id="caja-cont"><div class="spin"></div></div>
   </div>
 
   <!-- ================= MÉTRICAS (demo) ================= -->
@@ -352,6 +345,51 @@
   </div>
 </div>
 
+<!-- ===== MODAL VENTA SUELTA ===== -->
+<div class="modal-bg" id="modal-venta">
+  <div class="modal">
+    <h3>Cargar venta</h3>
+    <div class="msub">Venta suelta (no va atada a una clienta)</div>
+    <label>¿Qué vendiste?</label>
+    <select id="mvt-tipo">
+      <option value="producto">🛍️ Producto</option>
+      <option value="olla">🍳 Olla ESSEN</option>
+    </select>
+    <label>Detalle</label>
+    <input id="mvt-concepto" placeholder="Ej: Shampoo / Olla 24cm">
+    <div class="two">
+      <div><label>Monto *</label><input id="mvt-monto" type="number" inputmode="numeric" placeholder="9000"></div>
+      <div><label>Fecha</label><input id="mvt-fecha" type="date"></div>
+    </div>
+    <label>Forma de cobro</label>
+    <select id="mvt-cobro"><option value="efectivo">Efectivo</option><option value="transferencia">Transferencia</option></select>
+    <div class="m-actions">
+      <button class="btn btn-cancel" onclick="cerrarModal('modal-venta')">Cancelar</button>
+      <button class="btn" id="mvt-save" onclick="guardarVenta()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL GASTO ===== -->
+<div class="modal-bg" id="modal-gasto">
+  <div class="modal">
+    <h3>Cargar gasto</h3>
+    <div class="msub">Se resta de tu neto del mes</div>
+    <label>¿En qué gastaste?</label>
+    <input id="mg-detalle" placeholder="Ej: Tinturas / Súper / Luz">
+    <div class="two">
+      <div><label>Monto *</label><input id="mg-monto" type="number" inputmode="numeric" placeholder="0"></div>
+      <div><label>Fecha</label><input id="mg-fecha" type="date"></div>
+    </div>
+    <label>Ámbito</label>
+    <select id="mg-ambito"><option value="negocio">🏪 Negocio</option><option value="casa">🏠 Casa</option></select>
+    <div class="m-actions">
+      <button class="btn btn-cancel" onclick="cerrarModal('modal-gasto')">Cancelar</button>
+      <button class="btn" id="mg-save" onclick="guardarGasto()">Guardar</button>
+    </div>
+  </div>
+</div>
+
 <!-- ===== MODAL TURNO ===== -->
 <div class="modal-bg" id="modal-turno">
   <div class="modal">
@@ -406,7 +444,7 @@ let fichaActualId = null; // clienta abierta en la ficha
 let rubroCargando = null; // rubro del modal de visita
 
 /* ============ HELPERS ============ */
-function go(v){document.querySelectorAll('.view').forEach(el=>el.classList.remove('on'));document.getElementById('v-'+v).classList.add('on');document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on', b.dataset.v===v));window.scrollTo(0,0);if(v==='turnos')cargarTurnos();}
+function go(v){document.querySelectorAll('.view').forEach(el=>el.classList.remove('on'));document.getElementById('v-'+v).classList.add('on');document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on', b.dataset.v===v));window.scrollTo(0,0);if(v==='turnos')cargarTurnos();if(v==='caja'||v==='inicio')cargarCaja();}
 function initial(nm){const p=(nm||'?').trim().split(/\s+/);return ((p[0][0]||'?')+(p[1]?p[1][0]:'')).toUpperCase();}
 function money(n){return '$'+Number(n||0).toLocaleString('es-AR');}
 function colorHex(c){if(!c)return 'var(--crema-osc)';return COL[c.toLowerCase().trim()]||'#C9A98A';}
@@ -420,7 +458,7 @@ async function initAuth(){
   if(session){ mostrarApp(); } else { mostrarLogin(); }
 }
 function mostrarLogin(){document.getElementById('login-screen').style.display='flex';document.getElementById('app').style.display='none';}
-function mostrarApp(){document.getElementById('login-screen').style.display='none';document.getElementById('app').style.display='flex';initDemo();cargarClientas();cargarTurnos();
+function mostrarApp(){document.getElementById('login-screen').style.display='none';document.getElementById('app').style.display='flex';initDemo();cargarClientas();cargarTurnos();cargarCaja();
   const hoy=new Date();document.getElementById('hoy-lbl').textContent='Hoy · '+hoy.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'});}
 async function hacerLogin(){
   const email=document.getElementById('log-email').value.trim();
@@ -641,6 +679,7 @@ async function cargarTurnos(){
   if(error){cont.innerHTML='<div class="card"><div class="empty">Error al cargar turnos.<br>'+error.message+'</div></div>';return;}
   turnosDB=data||[];
   renderTurnos();
+  renderIniTurnos();
 }
 function renderTurnos(){
   const cont=document.getElementById('turnos-cont');
@@ -758,25 +797,115 @@ async function turnoCumplido(id){
   } else { toast('Turno marcado como cumplido ✓'); }
 }
 
-const caja={pel:{fact:698000,gan:472000},pro:{fact:144000,gan:54000},maq:{fact:173000,gan:155000}};
-const cajaTotal={fact:1015000,gan:681000,efectivo:602000,transf:413000};
-const serviciosPel=[{n:'Corte',p:8000},{n:'Color / tintura',p:25000},{n:'Mechas / Balayage',p:55000},{n:'Alisado',p:45000},{n:'Plastificado',p:30000},{n:'Nutrición',p:18000},{n:'Peinado',p:12000}];
-const productos=[{n:'Shampoo línea',costo:5500,venta:9000},{n:'Máscara de tratamiento',costo:9000,venta:15000},{n:'Serum de puntas',costo:7000,venta:12000}];
-const serviciosMaq=[{n:'Maquillaje social / día',p:18000},{n:'Maquillaje 15 años',p:35000},{n:'Prueba de novia',p:25000},{n:'Maquillaje de novia',p:75000}];
 const facturacion={2026:{fact:[420,510,485,560,530,610,845,1015,0,0,0,0],gan:[300,360,340,395,372,430,560,681,0,0,0,0]},2025:{fact:[280,310,295,340,360,390,420,455,470,500,540,610],gan:[195,215,205,238,250,270,290,315,325,345,372,420]}};
 const meses=['E','F','M','A','M','J','J','A','S','O','N','D'];
 const topMesDemo=[{n:'Ejemplo A',v:110000},{n:'Ejemplo B',v:58000},{n:'Ejemplo C',v:55000}];
 
-function initDemo(){selRubro(document.querySelector('.tabs button'),'todo');renderChart();renderTop();}
-function selRubro(btn,r){document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('on'));btn.classList.add('on');const c=document.getElementById('caja-cont');
-  if(r==='todo'){c.innerHTML=`<div class="tiles"><div class="tile dor"><div class="lbl">Facturación total</div><div class="val">${money(cajaTotal.fact)}</div></div><div class="tile rosa"><div class="lbl">Ganancia total</div><div class="val">${money(cajaTotal.gan)}</div></div></div><div class="tiles"><div class="tile"><div class="lbl">Efectivo</div><div class="val" style="font-size:19px">${money(cajaTotal.efectivo)}</div></div><div class="tile"><div class="lbl">Transferencia</div><div class="val" style="font-size:19px">${money(cajaTotal.transf)}</div></div></div><div class="block-title">Desglose por rubro</div><div class="card">${rubroRow('pel','💇 Peluquería')}${rubroRow('pro','🛍️ Productos')}${rubroRow('maq','💄 Maquillaje')}</div>`;}
-  else{const d=caja[r];const dc=r==='pel'?'dor':r==='pro'?'rosa':'maq';let lista='';
-    if(r==='pel')lista=`<div class="block-title">Servicios y precios</div><div class="card">${serviciosPel.map(s=>`<div class="price-row"><span>${s.n}</span><span class="p">${money(s.p)}</span></div>`).join('')}</div>`;
-    else if(r==='pro')lista=`<div class="block-title">Productos</div><div class="card">${productos.map(s=>`<div class="price-row"><span>${s.n}<small>Costo ${money(s.costo)} · Ganás ${money(s.venta-s.costo)}</small></span><span class="p">${money(s.venta)}</span></div>`).join('')}</div>`;
-    else lista=`<div class="block-title">Tipos de maquillaje</div><div class="card">${serviciosMaq.map(s=>`<div class="price-row"><span>${s.n}</span><span class="p">${money(s.p)}</span></div>`).join('')}</div>`;
-    c.innerHTML=`<div class="tiles"><div class="tile ${dc}"><div class="lbl">Facturación</div><div class="val">${money(d.fact)}</div></div><div class="tile"><div class="lbl">Ganancia</div><div class="val">${money(d.gan)}</div></div></div>${lista}`;}
+function initDemo(){renderChart();renderTop();}
+
+/* ============================================================
+   CAJA + INICIO (REAL) · mes actual
+   ============================================================ */
+let cajaMes=null;
+function rangoMes(){const h=new Date();const y=h.getFullYear(),m=h.getMonth();const f=d=>d.toISOString().slice(0,10);return {desde:f(new Date(y,m,1)),hasta:f(new Date(y,m+1,0)),nombre:h.toLocaleDateString('es-AR',{month:'long',year:'numeric'})};}
+
+async function cargarCaja(){
+  const cont=document.getElementById('caja-cont');
+  if(!cajaMes) cont.innerHTML='<div class="spin"></div>';
+  const {desde,hasta,nombre}=rangoMes();
+  const lbl=document.getElementById('caja-mes-lbl'); if(lbl) lbl.textContent=nombre;
+  const [rv,rven,rg]=await Promise.all([
+    sb.from('visitas').select('*').gte('fecha',desde).lte('fecha',hasta),
+    sb.from('ventas').select('*').gte('fecha',desde).lte('fecha',hasta),
+    sb.from('gastos').select('*').gte('fecha',desde).lte('fecha',hasta)
+  ]);
+  if(rv.error){cont.innerHTML='<div class="card"><div class="empty">Error al cargar la caja.<br>'+rv.error.message+'</div></div>';return;}
+  const visitas=rv.data||[], ventas=(rven.error?[]:rven.data)||[], gastos=(rg.error?[]:rg.data)||[];
+  const sVis=r=>visitas.filter(v=>v.rubro===r).reduce((a,v)=>a+Number(v.monto||0),0);
+  const sVen=t=>ventas.filter(v=>v.tipo===t).reduce((a,v)=>a+Number(v.monto||0),0);
+  const rub={peluqueria:sVis('peluqueria'),maquillaje:sVis('maquillaje'),curso:sVis('curso'),producto:sVis('producto')+sVen('producto'),olla:sVen('olla')};
+  const facturado=Object.values(rub).reduce((a,b)=>a+b,0);
+  const ganancia=facturado;
+  const cobro=fc=>[...visitas.filter(v=>v.forma_cobro===fc),...ventas.filter(v=>v.forma_cobro===fc)].reduce((a,v)=>a+Number(v.monto||0),0);
+  const gastoNeg=gastos.filter(g=>g.ambito==='negocio').reduce((a,g)=>a+Number(g.monto||0),0);
+  const gastoCasa=gastos.filter(g=>g.ambito==='casa').reduce((a,g)=>a+Number(g.monto||0),0);
+  const gastoTotal=gastoNeg+gastoCasa;
+  cajaMes={rub,facturado,ganancia,neto:ganancia-gastoTotal,efe:cobro('efectivo'),tra:cobro('transferencia'),gastoNeg,gastoCasa,gastoTotal,gastos,ventas};
+  renderCaja();renderInicioResumen();
 }
-function rubroRow(r,lbl){const d=caja[r];return `<div class="row"><div class="info"><div class="nm">${lbl}</div><div class="meta">Ganancia ${money(d.gan)}</div></div><div class="rt"><div class="amt">${money(d.fact)}</div><div class="tag">facturado</div></div></div>`;}
+function renderCaja(){
+  const m=cajaMes;if(!m)return;
+  const R=[['peluqueria','💇 Peluquería'],['producto','🛍️ Productos'],['maquillaje','💄 Maquillaje'],['curso','💵 Curso'],['olla','🍳 Ollas ESSEN']];
+  document.getElementById('caja-cont').innerHTML=`
+    <div class="tiles"><div class="tile dor"><div class="lbl">Facturado</div><div class="val">${money(m.facturado)}</div></div><div class="tile rosa"><div class="lbl">Ganancia</div><div class="val">${money(m.ganancia)}</div></div></div>
+    <div class="tiles"><div class="tile maq" style="grid-column:1/-1"><div class="lbl">Neto · lo que te queda después de gastos</div><div class="val">${money(m.neto)}</div></div></div>
+    <button class="btn" onclick="abrirModalVenta()" style="margin:2px 0 4px">+ Cargar venta (producto / olla)</button>
+    <div class="block-title">Ingresos por rubro</div>
+    <div class="card">${R.map(([k,lbl])=>`<div class="row"><div class="info"><div class="nm">${lbl}</div></div><div class="rt"><div class="amt">${money(m.rub[k])}</div></div></div>`).join('')}</div>
+    <div class="block-title">Formas de cobro</div>
+    <div class="tiles"><div class="tile"><div class="lbl">Efectivo</div><div class="val" style="font-size:19px">${money(m.efe)}</div></div><div class="tile"><div class="lbl">Transferencia</div><div class="val" style="font-size:19px">${money(m.tra)}</div></div></div>
+    <div class="block-title">Gastos del mes <a onclick="abrirModalGasto()">+ Cargar gasto</a></div>
+    <div class="card">
+      <div class="row"><div class="info"><div class="nm">🏪 Negocio</div></div><div class="rt"><div class="amt">${money(m.gastoNeg)}</div></div></div>
+      <div class="row"><div class="info"><div class="nm">🏠 Casa</div></div><div class="rt"><div class="amt">${money(m.gastoCasa)}</div></div></div>
+      <div class="row"><div class="info"><div class="nm" style="color:var(--rojo)">Total gastos</div></div><div class="rt"><div class="amt" style="color:var(--rojo)">${money(m.gastoTotal)}</div></div></div>
+    </div>
+    ${m.gastos.length?'<div class="block-title">Detalle de gastos</div><div class="card">'+m.gastos.map(g=>`<div class="row"><div class="info"><div class="nm">${g.detalle||'(sin detalle)'}</div><div class="meta">${g.ambito==='negocio'?'🏪 Negocio':'🏠 Casa'} · ${fechaLinda(g.fecha)}</div></div><div class="rt"><div class="amt">${money(g.monto)}</div><button class="mini-act del" style="margin-top:4px" onclick="borrarGasto(${g.id})">🗑️</button></div></div>`).join('')+'</div>':''}
+    ${m.ventas.length?'<div class="block-title">Ventas sueltas del mes</div><div class="card">'+m.ventas.map(v=>`<div class="row"><div class="info"><div class="nm">${v.tipo==='olla'?'🍳':'🛍️'} ${v.concepto||v.tipo}</div><div class="meta">${fechaLinda(v.fecha)} · ${v.forma_cobro||''}</div></div><div class="rt"><div class="amt">${money(v.monto)}</div><button class="mini-act del" style="margin-top:4px" onclick="borrarVenta(${v.id})">🗑️</button></div></div>`).join('')+'</div>':''}
+  `;
+}
+function renderInicioResumen(){
+  if(!cajaMes)return;
+  const f=document.getElementById('ini-fact'); if(f)f.textContent=money(cajaMes.facturado);
+  const n=document.getElementById('ini-neto'); if(n)n.textContent=money(cajaMes.neto);
+  const R=[['peluqueria','pel','Peluquería'],['producto','pro','Productos'],['maquillaje','maq','Maquillaje']];
+  const cont=document.getElementById('ini-rubros'); if(cont)cont.innerHTML=R.map(([k,c,lbl])=>`<div class="rmini"><div class="rl"><span class="rdot ${c}"></span>${lbl}</div><div class="rv">${money(cajaMes.rub[k])}</div></div>`).join('');
+}
+function renderIniTurnos(){
+  const cont=document.getElementById('ini-turnos'); if(!cont)return;
+  const prox=turnosDB.filter(t=>t.estado!=='cumplido').slice(0,2);
+  if(!prox.length){cont.innerHTML='<div class="card"><div class="empty" style="padding:16px">No hay turnos próximos.</div></div>';return;}
+  cont.innerHTML=prox.map(t=>{const r=RUBRO[t.rubro]||RUBRO.peluqueria;const nombre=t.clientas?t.clientas.nombre:'';return `<div class="alert${t.rubro==='maquillaje'?' maq':''}"><div class="ic">${r.ic}</div><div class="tx"><b>${fechaLinda(t.fecha)}${t.hora?' · '+t.hora.slice(0,5):''} · ${nombre}</b><span>${r.lbl} · ${t.servicio||''}${t.sena>0?' · seña '+money(t.sena):''}</span></div></div>`;}).join('');
+}
+
+/* ===== VENTAS SUELTAS ===== */
+function abrirModalVenta(){document.getElementById('mvt-tipo').value='producto';document.getElementById('mvt-concepto').value='';document.getElementById('mvt-monto').value='';document.getElementById('mvt-fecha').value=hoyISO();document.getElementById('mvt-cobro').value='efectivo';abrirModal('modal-venta');}
+async function guardarVenta(){
+  const monto=parseFloat(document.getElementById('mvt-monto').value);
+  if(isNaN(monto)||monto<0){toast('Poné un monto válido');return;}
+  const btn=document.getElementById('mvt-save');btn.disabled=true;btn.textContent='Guardando...';
+  const {error}=await sb.from('ventas').insert({tipo:document.getElementById('mvt-tipo').value,concepto:document.getElementById('mvt-concepto').value.trim()||null,monto,fecha:document.getElementById('mvt-fecha').value||hoyISO(),forma_cobro:document.getElementById('mvt-cobro').value});
+  btn.disabled=false;btn.textContent='Guardar';
+  if(error){toast('Error: '+error.message);return;}
+  cerrarModal('modal-venta');toast('Venta cargada ✅');cajaMes=null;await cargarCaja();
+}
+function borrarVenta(id){
+  const v=cajaMes.ventas.find(x=>x.id===id);
+  confirmar('¿Borrar esta venta?',(v?(v.concepto||v.tipo)+' · '+money(v.monto):''),async()=>{
+    const {error}=await sb.from('ventas').delete().eq('id',id);
+    if(error){toast('Error: '+error.message);return;}
+    cerrarModal('modal-confirm');toast('Venta borrada');cajaMes=null;await cargarCaja();
+  });
+}
+/* ===== GASTOS ===== */
+function abrirModalGasto(){document.getElementById('mg-detalle').value='';document.getElementById('mg-monto').value='';document.getElementById('mg-fecha').value=hoyISO();document.getElementById('mg-ambito').value='negocio';abrirModal('modal-gasto');}
+async function guardarGasto(){
+  const monto=parseFloat(document.getElementById('mg-monto').value);
+  if(isNaN(monto)||monto<0){toast('Poné un monto válido');return;}
+  const btn=document.getElementById('mg-save');btn.disabled=true;btn.textContent='Guardando...';
+  const {error}=await sb.from('gastos').insert({detalle:document.getElementById('mg-detalle').value.trim()||null,monto,fecha:document.getElementById('mg-fecha').value||hoyISO(),ambito:document.getElementById('mg-ambito').value});
+  btn.disabled=false;btn.textContent='Guardar';
+  if(error){toast('Error: '+error.message);return;}
+  cerrarModal('modal-gasto');toast('Gasto cargado ✅');cajaMes=null;await cargarCaja();
+}
+function borrarGasto(id){
+  const g=cajaMes.gastos.find(x=>x.id===id);
+  confirmar('¿Borrar este gasto?',(g?(g.detalle||'')+' · '+money(g.monto):''),async()=>{
+    const {error}=await sb.from('gastos').delete().eq('id',id);
+    if(error){toast('Error: '+error.message);return;}
+    cerrarModal('modal-confirm');toast('Gasto borrado');cajaMes=null;await cargarCaja();
+  });
+}
 let yearActual=2026;
 function selYear(btn,y){document.querySelectorAll('.year-sel button').forEach(b=>b.classList.remove('on'));btn.classList.add('on');yearActual=y;renderChart();}
 function renderChart(){const d=facturacion[yearActual];const max=Math.max(...d.fact)||1;const W=340,H=170,pad=22,bw=W/12;let bars='';for(let i=0;i<12;i++){const fh=(d.fact[i]/max)*(H-pad-20);const gh=(d.gan[i]/max)*(H-pad-20);const x=i*bw+6;bars+=`<rect x="${x}" y="${H-pad-fh}" width="${bw/2-3}" height="${fh}" rx="3" fill="var(--dorado)" opacity="${d.fact[i]?1:.15}"/>`;bars+=`<rect x="${x+bw/2-2}" y="${H-pad-gh}" width="${bw/2-3}" height="${gh}" rx="3" fill="var(--rosa)" opacity="${d.gan[i]?1:.15}"/>`;bars+=`<text x="${x+bw/2-2}" y="${H-6}" font-size="10" fill="var(--texto-suave)" text-anchor="middle" font-family="Jost">${meses[i]}</text>`;}document.getElementById('chart').innerHTML=`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${bars}</svg>`;}
