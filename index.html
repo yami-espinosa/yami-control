@@ -156,6 +156,14 @@
   .ficha-actions button{flex:1;font-family:inherit;font-size:12.5px;font-weight:600;padding:10px;border-radius:12px;border:1.5px solid rgba(196,150,90,0.35);background:var(--blanco);color:var(--marron-osc);cursor:pointer;}
   .ficha-actions button.del{border-color:rgba(201,123,107,0.5);color:var(--rojo);}
 
+  .mes-nav{display:flex;align-items:center;justify-content:space-between;background:var(--blanco);border:1px solid rgba(196,150,90,0.25);border-radius:14px;padding:8px 10px;margin-bottom:14px;}
+  .mes-nav button{width:40px;height:40px;border-radius:11px;border:none;background:var(--crema-osc);color:var(--marron-osc);font-size:16px;font-weight:700;cursor:pointer;}
+  .mes-nav button:disabled{opacity:.3;cursor:default;}
+  .mes-nav .mes-nombre{font-size:15px;font-weight:600;text-transform:capitalize;}
+
+  .chart-detalle{font-size:12.5px;color:var(--marron-osc);text-align:center;padding:10px 4px 2px;line-height:1.5;border-top:1px solid rgba(196,150,90,0.15);margin-top:6px;}
+  .chart-detalle b{color:var(--dorado);}
+
   /* ===== LOGIN ===== */
   #login-screen{position:fixed;inset:0;z-index:100;background:linear-gradient(165deg,var(--crema) 0%,var(--crema-osc) 100%);display:flex;align-items:center;justify-content:center;padding:24px;}
   .login-box{width:100%;max-width:360px;text-align:center;}
@@ -278,7 +286,9 @@
     <div class="card">
       <div class="chart-wrap"><div id="chart"><div class="spin"></div></div></div>
       <div class="legend"><span><i style="background:var(--dorado)"></i>Facturado</span><span><i style="background:var(--rojo)"></i>Gastos</span><span><i style="background:var(--verde)"></i>Neto</span></div>
+      <div class="chart-detalle" id="chart-detalle"></div>
     </div>
+    <div id="chart-tabla"></div>
     <div class="block-title">Top clientas</div>
     <div class="seg" id="top-seg">
       <button class="on" onclick="setTop(this,'mes')">Del mes</button>
@@ -447,7 +457,7 @@ let fichaActualId = null; // clienta abierta en la ficha
 let rubroCargando = null; // rubro del modal de visita
 
 /* ============ HELPERS ============ */
-function go(v){document.querySelectorAll('.view').forEach(el=>el.classList.remove('on'));document.getElementById('v-'+v).classList.add('on');document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on', b.dataset.v===v));window.scrollTo(0,0);if(v==='turnos')cargarTurnos();if(v==='caja'||v==='inicio')cargarCaja();if(v==='metricas')cargarMetricas();}
+function go(v){document.querySelectorAll('.view').forEach(el=>el.classList.remove('on'));document.getElementById('v-'+v).classList.add('on');document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on', b.dataset.v===v));window.scrollTo(0,0);if(v==='turnos')cargarTurnos();if(v==='caja'||v==='inicio'){mesOffset=0;cajaMes=null;cargarCaja();}if(v==='metricas')cargarMetricas();}
 function initial(nm){const p=(nm||'?').trim().split(/\s+/);return ((p[0][0]||'?')+(p[1]?p[1][0]:'')).toUpperCase();}
 function money(n){return '$'+Number(n||0).toLocaleString('es-AR');}
 function colorHex(c){if(!c)return 'var(--crema-osc)';return COL[c.toLowerCase().trim()]||'#C9A98A';}
@@ -808,7 +818,9 @@ function initDemo(){}
    CAJA + INICIO (REAL) · mes actual
    ============================================================ */
 let cajaMes=null;
-function rangoMes(){const h=new Date();const y=h.getFullYear(),m=h.getMonth();const f=d=>d.toISOString().slice(0,10);return {desde:f(new Date(y,m,1)),hasta:f(new Date(y,m+1,0)),nombre:h.toLocaleDateString('es-AR',{month:'long',year:'numeric'})};}
+let mesOffset=0;
+function rangoMes(){const h=new Date();const p=new Date(h.getFullYear(),h.getMonth()+mesOffset,1),u=new Date(h.getFullYear(),h.getMonth()+mesOffset+1,0);const f=d=>d.toISOString().slice(0,10);return {desde:f(p),hasta:f(u),nombre:p.toLocaleDateString('es-AR',{month:'long',year:'numeric'})};}
+function cambiarMes(d){mesOffset+=d;if(mesOffset>0)mesOffset=0;cajaMes=null;cargarCaja();}
 
 async function cargarCaja(){
   const cont=document.getElementById('caja-cont');
@@ -838,6 +850,7 @@ function renderCaja(){
   const m=cajaMes;if(!m)return;
   const R=[['peluqueria','💇 Peluquería'],['producto','🛍️ Productos'],['maquillaje','💄 Maquillaje'],['curso','💵 Curso'],['olla','🍳 Ollas ESSEN']];
   document.getElementById('caja-cont').innerHTML=`
+    <div class="mes-nav"><button onclick="cambiarMes(-1)">◀</button><span class="mes-nombre">${rangoMes().nombre}</span><button onclick="cambiarMes(1)" ${mesOffset>=0?'disabled':''}>▶</button></div>
     <div class="tiles"><div class="tile dor"><div class="lbl">Facturado</div><div class="val">${money(m.facturado)}</div></div><div class="tile"><div class="lbl">Gastos del mes</div><div class="val" style="color:var(--rojo)">${money(m.gastoTotal)}</div></div></div>
     <div class="tiles"><div class="tile maq" style="grid-column:1/-1"><div class="lbl">Neto · lo que te queda</div><div class="val">${money(m.neto)}</div></div></div>
     <button class="btn" onclick="abrirModalVenta()" style="margin:2px 0 4px">+ Cargar venta (producto / olla)</button>
@@ -957,6 +970,8 @@ function renderEnfriadas(){
 }
 
 function selYear(btn,y){document.querySelectorAll('#year-sel button').forEach(b=>b.classList.remove('on'));btn.classList.add('on');yearActual=y;renderChartAnual();}
+const mesesFull=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+let chartData=null;
 async function renderChartAnual(){
   const desde=yearActual+'-01-01', hasta=yearActual+'-12-31';
   const [rv,rven,rg]=await Promise.all([
@@ -969,6 +984,7 @@ async function renderChartAnual(){
   (rven.data||[]).forEach(v=>{fact[+v.fecha.slice(5,7)-1]+=Number(v.monto||0);});
   (rg.data||[]).forEach(g=>{gast[+g.fecha.slice(5,7)-1]+=Number(g.monto||0);});
   const neto=fact.map((f,i)=>f-gast[i]);
+  chartData={fact,gast,neto};
   const max=Math.max(...fact,...gast,1);
   const W=360,H=180,pad=22,bw=W/12;let bars='';
   for(let i=0;i<12;i++){
@@ -978,8 +994,21 @@ async function renderChartAnual(){
     bars+=`<rect x="${x+w+1}" y="${H-pad-bh(gast[i])}" width="${w}" height="${bh(gast[i])}" rx="2" fill="var(--rojo)" opacity="${gast[i]?1:.12}"/>`;
     bars+=`<rect x="${x+2*w+2}" y="${H-pad-bh(neto[i])}" width="${w}" height="${bh(neto[i])}" rx="2" fill="var(--verde)" opacity="${neto[i]?1:.12}"/>`;
     bars+=`<text x="${x+bw/2-2}" y="${H-6}" font-size="9" fill="var(--texto-suave)" text-anchor="middle" font-family="Jost">${meses[i]}</text>`;
+    bars+=`<rect x="${i*bw}" y="0" width="${bw}" height="${H}" fill="transparent" style="cursor:pointer" onclick="seleccionarMesChart(${i})"/>`;
   }
   document.getElementById('chart').innerHTML=`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${bars}</svg>`;
+  const totF=fact.reduce((a,b)=>a+b,0), totG=gast.reduce((a,b)=>a+b,0);
+  document.getElementById('chart-detalle').innerHTML=`<b>Total ${yearActual}</b> · Facturado ${money(totF)} · Gastos ${money(totG)} · Neto ${money(totF-totG)}<br><span style="font-size:11px;color:var(--texto-suave)">Tocá un mes para ver su detalle</span>`;
+  let filas='';
+  for(let i=0;i<12;i++){ if(fact[i]||gast[i]){ filas+=`<div class="row"><div class="info"><div class="nm">${mesesFull[i]}</div><div class="meta">Facturado ${money(fact[i])} · Gastos ${money(gast[i])}</div></div><div class="rt"><div class="amt" style="color:var(--verde)">${money(neto[i])}</div><div class="tag">neto</div></div></div>`; } }
+  document.getElementById('chart-tabla').innerHTML = filas? '<div class="block-title">Detalle por mes</div><div class="card">'+filas+'</div>' : '';
+}
+function seleccionarMesChart(i){
+  if(!chartData)return;
+  const {fact,gast,neto}=chartData;
+  const d=document.getElementById('chart-detalle');
+  if(!fact[i]&&!gast[i]){d.innerHTML=`<b>${mesesFull[i]}</b> · sin movimientos`;return;}
+  d.innerHTML=`<b>${mesesFull[i]} ${yearActual}</b><br>Facturado ${money(fact[i])} · Gastos ${money(gast[i])} · <span style="color:var(--verde);font-weight:600">Neto ${money(neto[i])}</span>`;
 }
 
 /* ============ ARRANQUE ============ */
